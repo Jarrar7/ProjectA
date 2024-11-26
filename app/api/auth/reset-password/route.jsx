@@ -1,7 +1,9 @@
 import { supabase } from '../../../../lib/supabaseClient';
 import bcrypt from 'bcrypt';
+import { middleware } from '../../../../middleware';
 
 export async function POST(request) {
+    middleware(request);
     try {
         const { email, newPassword } = await request.json();
 
