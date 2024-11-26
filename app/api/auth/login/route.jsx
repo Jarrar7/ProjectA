@@ -1,37 +1,22 @@
 import { supabase } from '../../../../lib/supabaseClient';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
+const SECRET_KEY = process.env.SECRET_KEY;
 
 export async function POST(request) {
     try {
         const { email, password } = await request.json();
-        //console.log('Received Email:', email);
-
-        // Trim and normalize email
-        const trimmedEmail = email.trim();
-        //console.log('Trimmed Email:', trimmedEmail);
 
         // Fetch user from Supabase
         const { data: user, error } = await supabase
             .from('users')
             .select('*')
-            .ilike('email', trimmedEmail)
+            .eq('email', email)
             .maybeSingle();
-
-        //console.log('Supabase Query Result:', { user, error });
-
 
         if (error || !user) {
             return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 });
-        }
-
-        // Ensure the user has a valid password
-        if (!user.password) {
-            console.error('No password found for the user.');
-            return new Response(
-                JSON.stringify({ error: 'Password is missing for the user.' }),
-                { status: 400 }
-            );
         }
 
         // Compare entered password with stored hashed password
@@ -41,8 +26,24 @@ export async function POST(request) {
             return new Response(JSON.stringify({ error: 'Invalid password' }), { status: 401 });
         }
 
-        // Return successful response
-        return new Response(JSON.stringify({ message: 'Login successful', user }), { status: 200 });
+        // Generate a JWT token
+        const token = jwt.sign(
+            { id: user.user_id, email: user.email, role: user.role },
+            SECRET_KEY,
+            { expiresIn: '1h' }
+        );
+        console.log('Generated token:', token);
+
+        // Set the token as an HttpOnly cookie
+        return new Response(JSON.stringify({ message: 'Login successful' }), {
+            status: 200,
+            headers: {
+                'Set-Cookie': `token=${token}; Path=/; Secure=${process.env.NODE_ENV === 'production'}; SameSite=Lax`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+
     } catch (err) {
         console.error('Unexpected Error:', err);
         return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
