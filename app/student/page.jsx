@@ -7,17 +7,55 @@ import Calendar from 'react-calendar';
 import CalendarComponent from '../components/CalendarComponent'; 
 import Profile from '../components/Profile';
 import Notifications from '../components/Notifications';
+import ParticipanceTable from '../components/ParticipanceTable.jsx'; 
 
-export default function Administration() {
+export default function DashboardPage() {
     const [activeSection, setActiveSection] = useState('dashboard');
+    const [items, setItems] = useState(['Algorithms', 'Object-Oriented Programming', 'Web Development', 'Human-Computer Interaction', 'Cloud Computing', 'Database Systems']);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [events, setEvents] = useState({
         '2024-08-23': ['Meeting with team']
     });
+    const [selectedCourse, setSelectedCourse] = useState(null);
+    const [courseSchedule, setCourseSchedule] = useState({
+        'Algorithms': [
+            {
+                date: '2024-09-01',
+                dayOfWeek: 'Sunday',
+                hours: '10:00 - 12:00',
+                room: 'Room 101',
+                participation: '3/3'
+            },
+            {
+                date: '2024-09-08',
+                dayOfWeek: 'Sunday',
+                hours: '10:00 - 12:00',
+                room: 'Room 102',
+                participation: '0/3'
+            },
+            {
+                date: '2024-09-15',
+                dayOfWeek: 'Sunday',
+                hours: '10:00 - 12:00',
+                room: 'Room 103',
+                participation: '1/3'
+            }
+        ],
+        // Add more courses and their schedule details here
+    });
+        
 
     // Define the handleDateChange function here
     const handleDateChange = (date) => {
         setSelectedDate(date);
+    };
+
+    const handleCourseClick = (course) => {
+        setSelectedCourse(course);
+    };
+
+    const handleBackClick = () => {
+        setSelectedCourse(null);
     };
 
     return (
@@ -39,16 +77,9 @@ export default function Administration() {
                 <li className={`hover:bg-indigo-500 p-4 flex items-center cursor-pointer ${activeSection === 'dashboard' ? 'bg-indigo-500' : ''}`}
                     onClick={() => setActiveSection('dashboard')}>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6 mr-4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
                 </svg>
-                Manage Users
-                </li>
-                <li className={`hover:bg-indigo-500 p-4 flex items-center cursor-pointer ${activeSection === 'courses' ? 'bg-indigo-500' : ''}`}
-                    onClick={() => setActiveSection('courses')}>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6 mr-4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 0 1-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-9.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-7.5A1.125 1.125 0 0 1 12 18.375m9.75-12.75c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125m19.5 0v1.5c0 .621-.504 1.125-1.125 1.125M2.25 5.625v1.5c0 .621.504 1.125 1.125 1.125m0 0h17.25m-17.25 0h7.5c.621 0 1.125.504 1.125 1.125M3.375 8.25c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m17.25-3.75h-7.5c-.621 0-1.125.504-1.125 1.125m8.625-1.125c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h7.5m-7.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125M12 10.875v-1.5m0 1.5c0 .621-.504 1.125-1.125 1.125M12 10.875c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125M13.125 12h7.5m-7.5 0c-.621 0-1.125.504-1.125 1.125M20.625 12c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h7.5M12 14.625v-1.5m0 1.5c0 .621-.504 1.125-1.125 1.125M12 14.625c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125m0 1.5v-1.5m0 0c0-.621.504-1.125 1.125-1.125m0 0h7.5" />
-                </svg>
-                Manage Courses
+                Dashboard
                 </li>
                 <li className={`hover:bg-indigo-500 p-4 flex items-center cursor-pointer ${activeSection === 'calendar' ? 'bg-indigo-500' : ''}`}
                     onClick={() => setActiveSection('calendar')}>
@@ -111,13 +142,34 @@ export default function Administration() {
            {/* Content Area */}
           <main className="flex-1 bg-gray-100 p-6 overflow-auto">
             {/* Conditionally render the grid based on dashboard selection */}
+            {activeSection === 'dashboard' && !selectedCourse && (
+                            <div>
+                                <h2 className="text-2xl font-bold mb-4">Your Courses</h2>
+                                <div className="grid grid-cols-3 gap-6">
+                                    {items.map((item, index) => (
+                                        <div key={index} className="bg-white shadow-md rounded-lg p-6">
+                                            <button onClick={() => handleCourseClick(item)}>
+                                                {item}
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        {selectedCourse && (
+                            <ParticipanceTable
+                                data={courseSchedule[selectedCourse] || []}
+                                onBack={handleBackClick}
+                            />
+                        )}
+
             {activeSection === 'calendar' && (
                 <CalendarComponent 
                 events={events}
                 selectedDate={selectedDate}
                 onDateChange={handleDateChange}
             />
-            )}            
+            )}  
             {activeSection === 'profile' && (
                 <div className="flex-1 overflow-auto">
                     <Profile />
