@@ -1,49 +1,46 @@
 import { supabase } from '../../../../lib/supabaseClient';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-
-const SECRET_KEY = process.env.SECRET_KEY;
 
 export async function POST(request) {
     try {
         const { email, password } = await request.json();
 
-        // Fetch user from Supabase
-        const { data: user, error } = await supabase
-            .from('users')
-            .select('*')
-            .eq('email', email)
-            .maybeSingle();
-
-        if (error || !user) {
-            return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 });
-        }
-
-        // Compare entered password with stored hashed password
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-
-        if (!isPasswordValid) {
-            return new Response(JSON.stringify({ error: 'Invalid password' }), { status: 401 });
-        }
-
-        // Generate a JWT token
-        const token = jwt.sign(
-            { id: user.user_id, email: user.email, role: user.role },
-            SECRET_KEY,
-            { expiresIn: '1h' }
-        );
-        console.log('Generated token:', token);
-
-        // Set the token as an HttpOnly cookie
-        return new Response(JSON.stringify({ message: 'Login successful' }), {
-            status: 200,
-            headers: {
-                'Set-Cookie': `token=${token}; Path=/; Secure=${process.env.NODE_ENV === 'production'}; SameSite=Lax`,
-                'Content-Type': 'application/json',
-            },
+        // Sign in the user using email and password
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
         });
 
+        if (error) {
+            if (error.code === 'email_not_confirmed') {
+                return new Response(
+                    JSON.stringify({ error: 'Your email is not confirmed. Please check your inbox to confirm your email.' }),
+                    { status: 401 }
+                );
+            }
+            console.error('Login Error:', error);
+            return new Response(JSON.stringify({ error: 'Invalid email or password' }), { status: 401 });
+        }
 
+
+        const userId = data.user.id; // Authenticated user's ID
+
+        // Fetch the user's role from the `profiles` table
+        const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', userId)
+            .single(); // Fetch a single row
+
+        if (profileError || !profileData) {
+            console.error('Profile Fetch Error:', profileError);
+            return new Response(JSON.stringify({ error: 'Failed to fetch user role' }), { status: 400 });
+        }
+
+        // Send the role and user data to the client
+        return new Response(
+            JSON.stringify({ message: 'Login successful', user: { ...data.user, role: profileData.role } }),
+            { status: 200 }
+        );
     } catch (err) {
         console.error('Unexpected Error:', err);
         return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
