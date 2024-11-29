@@ -32,27 +32,27 @@ export default function Administration() {
     return (
         <main>
             <div className="flex h-screen">
-            <SidebarAdmin
-                activeSection={activeSection}
-                setActiveSection={setActiveSection}
-                logout={logout}
-            />
+                <SidebarAdmin
+                    activeSection={activeSection}
+                    setActiveSection={setActiveSection}
+                    logout={logout}
+                />
 
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col">
                     {/* Header */}
-                    <Header  />
+                    <Header />
 
                     {/* Content Area */}
                     <main className="flex-1 bg-gray-100 p-6 overflow-auto">
                         {/* Conditionally render the grid based on dashboard selection */}
                         {activeSection === 'manageUsers' && (
-                            <ManageUsers/>
+                            <ManageUsers />
                         )}
 
                         {activeSection === 'manageCourses' && (
                             <ManageCourses />
-                        )}    
+                        )}
 
                         {activeSection === 'calendar' && (
                             <CalendarComponent

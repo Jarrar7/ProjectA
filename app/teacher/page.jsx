@@ -92,7 +92,7 @@ export default function DashboardPage() {
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col">
                     {/* Header */}
-                    <Header/>
+                    <Header />
 
                     {/* Content Area */}
                     <main className="flex-1 bg-gray-100 p-6 overflow-auto">
