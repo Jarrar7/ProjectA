@@ -11,6 +11,8 @@ import YearSemesterFilter from '../components/YearSemesterFilter';
 import CalendarComponent from '../components/CalendarComponent';
 import Profile from '../components/Profile';
 import Settings from '../components/Settings';
+import CourseScheduleTable from '../components/CourseScheduleTable'; 
+
 import { useUser } from "../context/UserContext"
 import withRoleProtection from "../components/hoc/withRoleProtection";
 
@@ -32,7 +34,6 @@ function TeacherDashboard() {
                 hours: '10:00 - 12:00',
                 room: 'Room 101',
                 attendedHours: 2,
-                attendedHours: 2,
                 totalHours: 3
             },
             {
@@ -40,7 +41,6 @@ function TeacherDashboard() {
                 dayOfWeek: 'Sunday',
                 hours: '10:00 - 12:00',
                 room: 'Room 102',
-                attendedHours: 3,
                 attendedHours: 3,
                 totalHours: 3
             },
@@ -50,15 +50,13 @@ function TeacherDashboard() {
                 hours: '10:00 - 12:00',
                 room: 'Room 103',
                 attendedHours: 0,
-                attendedHours: 0,
                 totalHours: 3
             }
         ],
         // Add more courses and their schedule details here
     });
 
-
-
+    
     const [courseParticipants, setParticipants] = useState({
         'Algorithms': [
             { id: 111111111, name: 'John Doe', attendance: '3/13' },
@@ -68,7 +66,7 @@ function TeacherDashboard() {
         ],
         // Add more participants
     });
-
+    
 
     // Define the handleDateChange function here
     const handleDateChange = (date) => {
@@ -82,7 +80,6 @@ function TeacherDashboard() {
     const handleBackClick = () => {
         setSelectedCourse(null);
     };
-
 
 
     return (
@@ -115,7 +112,7 @@ function TeacherDashboard() {
                                                 {item}
                                             </button>
                                         </div>
-                                    ))}
+                                    ))}                     
                                 </div>
                             </div>
                         )}
@@ -125,7 +122,7 @@ function TeacherDashboard() {
                                 participants={courseParticipants[selectedCourse] || []}
                                 onBack={handleBackClick}
 
-
+                                
                             />
                         )}
 
