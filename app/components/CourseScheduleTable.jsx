@@ -1,27 +1,49 @@
 import React, { useState } from 'react';
 
+
 const CourseScheduleTable = ({ schedule, participants, onBack }) => {
     const [activeTab, setActiveTab] = useState('schedule');
-    const [showModal, setShowModal] = useState(false); // To handle modal visibility
+    const [showModal, setShowModal] = useState(false); // To handle modal visibility for courses
     const [selectedRow, setSelectedRow] = useState(null); // To store the data of the selected row
+    const [showParticipantModal, setShowParticipantModal] = useState(false); // To control participant modal
+    const [selectedParticipant, setSelectedParticipant] = useState(null); // Store selected participant data
 
-    // Function to handle the "Edit" button click
-    const handleEditClick = (entry) => {
-        setSelectedRow(entry); // Set the row data
-        setShowModal(true); // Show the modal
+    // Function to handle the "Edit" button click from the course table
+    const handleEditClickCourse = (entry) => {
+        setSelectedRow(entry); // Set the row data for course schedule
+        setShowModal(true); // Show the modal for course schedule
+    };
+
+    // Function to handle the "Edit" button click from the participants table
+    const handleEditClickParticipant = (participant) => {
+        setSelectedParticipant(participant); // Set the selected participant data
+        setShowParticipantModal(true); // Show the modal for editing participant attendance
+    };
+
+    // Handle changes to attendedHours
+    const handleAttendanceChange = (index, newAttendedHours) => {
+        const updatedSchedule = [...schedule];
+        updatedSchedule[index].attendedHours = newAttendedHours;
+        onUpdateSchedule(updatedSchedule); // Call a parent function that updates the state
+    };
+
+    // Handle saving changes
+    const handleSaveChanges = () => {
+        console.log("Updated Schedule:", schedule);
+        // Optionally, send updated schedule to the backend or perform additional actions here
     };
 
     return (
         <div>
             {/* Back to Courses Button */}
-            {!showModal && (
+            {!showModal && !showParticipantModal && (
                 <button onClick={onBack} className="mb-4 text-blue-500">
                     &larr; Back to Courses
                 </button>
             )}
 
             {/* Tab Switcher */}
-            {!showModal && (
+            {!showModal && !showParticipantModal && (
                 <div className="mb-4">
                     <button
                         onClick={() => setActiveTab('schedule')}
@@ -38,7 +60,7 @@ const CourseScheduleTable = ({ schedule, participants, onBack }) => {
                 </div>
             )}
 
-            {/* Modal for Editing */}
+            {/* Modal for Editing Course Schedule */}
             {showModal && selectedRow && (
                 <div className="modal-overlay">
                     <div className="mt-4">
@@ -74,10 +96,70 @@ const CourseScheduleTable = ({ schedule, participants, onBack }) => {
                 </div>
             )}
 
+            {/* Modal for Editing Participant Attendance */}
+            {showParticipantModal && selectedParticipant && (
+                <div className="modal-overlay">
+                    <div className="mt-4">
+                        <button onClick={() => setShowParticipantModal(false)} className="mb-4 text-blue-500">
+                            &larr; Back to Course Participants
+                        </button>
+                    </div>
+                    <div className="modal">
+                        <h2 className="text-2xl font-bold mb-6">Edit Attendance Manually</h2>
+                        <p><strong>ID:</strong> {selectedParticipant.id}</p>
+                        <p><strong>Name:</strong> {selectedParticipant.name}</p>
+
+                        <h3 className="text-xl font-semibold mb-4">Attendance</h3>
+                        <table className="min-w-full bg-white shadow-md rounded-lg">
+                            <thead>
+                                <tr>
+                                    <th className="py-2 px-4 border-b">Date</th>
+                                    <th className="py-2 px-4 border-b">Attendance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {schedule.map((entry, index) => {
+                                    const { attendedHours, totalHours, date, dayOfWeek } = entry;
+                                    const isComplete = attendedHours === totalHours;
+
+                                    return (
+                                        <tr key={index}>
+                                            <td className="py-2 px-4 border-b text-center">{`${date} (${dayOfWeek})`}</td>
+                                            <td className="py-2 px-4 border-b text-center">
+                                                <input
+                                                    type="number"
+                                                    value={entry.attendedHours}
+                                                    min="0"
+                                                    max={totalHours}
+                                                    className={`w-16 text-center ${
+                                                        isComplete ? "text-green-500" : "text-red-500"
+                                                    }`}
+                                                    onChange={(e) => handleAttendanceChange(index, parseInt(e.target.value))}
+                                                />
+                                                /{totalHours}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+
+                        <div className="mt-4 flex justify-center">
+                            <button
+                                className="mt-4 bg-blue-500 text-white py-2 px-6 rounded-lg"
+                                onClick={handleSaveChanges}
+                            >
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
 
-            {/* Tab Content */}
-            {!showModal && activeTab === 'schedule' && ( // Only show the table if modal is not open
+
+            {/* Course Schedule Table */}
+            {!showModal && activeTab === 'schedule' && (
                 <div>
                     <h2 className="text-2xl font-bold mb-4">Course Schedule</h2>
                     <table className="min-w-full bg-white shadow-md rounded-lg">
@@ -94,12 +176,12 @@ const CourseScheduleTable = ({ schedule, participants, onBack }) => {
                                 schedule.map((entry, index) => (
                                     <tr key={index}>
                                         <td className="py-2 px-4 border-b text-center">{`${entry.date} (${entry.dayOfWeek})`}</td>
-                                         <td className="py-2 px-4 border-b text-center">{entry.hours}</td>
-                                         <td className="py-2 px-4 border-b text-center">{entry.room}</td>
-                                         <td className="py-2 px-4 border-b text-center">
+                                        <td className="py-2 px-4 border-b text-center">{entry.hours}</td>
+                                        <td className="py-2 px-4 border-b text-center">{entry.room}</td>
+                                        <td className="py-2 px-4 border-b text-center">
                                             <button
                                                 className="btn btn-primary"
-                                                onClick={() => handleEditClick(entry)} // Trigger the edit functionality
+                                                onClick={() => handleEditClickCourse(entry)} // Trigger the edit functionality for course
                                             >
                                                 Edit
                                             </button>
@@ -116,7 +198,8 @@ const CourseScheduleTable = ({ schedule, participants, onBack }) => {
                 </div>
             )}
 
-            {activeTab === 'participants' && !showModal && ( // Show participants table only if modal is not open
+            {/* Course Participants Table */}
+            {activeTab === 'participants' && !showModal && !showParticipantModal && (
                 <div>
                     <h2 className="text-2xl font-bold mb-4">Course Participants</h2>
                     <table className="min-w-full bg-white shadow-md rounded-lg">
@@ -138,16 +221,16 @@ const CourseScheduleTable = ({ schedule, participants, onBack }) => {
                                         <td className="py-2 px-4 border-b text-center">
                                             <button
                                                 className="btn btn-primary"
-                                                onClick={() => handleEditClick(entry)} // Trigger the edit functionality
+                                                onClick={() => handleEditClickParticipant(participant)} // Trigger the edit functionality for participants
                                             >
                                                 Edit
                                             </button>
-                                        </td>   
+                                        </td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td className="py-2 px-4 text-center" colSpan="1">No participants available</td>
+                                    <td className="py-2 px-4 text-center" colSpan="4">No participants available</td>
                                 </tr>
                             )}
                         </tbody>
