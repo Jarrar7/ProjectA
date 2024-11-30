@@ -122,6 +122,7 @@ function TeacherDashboard() {
                                 schedule={courseSchedule[selectedCourse] || []}
                                 participants={courseParticipants[selectedCourse] || []}
                                 onBack={handleBackClick}
+
                             />
                         )}
 
