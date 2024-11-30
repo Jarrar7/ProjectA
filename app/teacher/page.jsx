@@ -26,23 +26,31 @@ export default function DashboardPage() {
                 date: '2024-09-01',
                 dayOfWeek: 'Sunday',
                 hours: '10:00 - 12:00',
-                room: 'Room 101'
+                room: 'Room 101',
+                attendedHours: 2,
+                totalHours: 3
             },
             {
                 date: '2024-09-08',
                 dayOfWeek: 'Sunday',
                 hours: '10:00 - 12:00',
-                room: 'Room 102'
+                room: 'Room 102',
+                attendedHours: 3,
+                totalHours: 3
             },
             {
                 date: '2024-09-15',
                 dayOfWeek: 'Sunday',
                 hours: '10:00 - 12:00',
-                room: 'Room 103'
+                room: 'Room 103',
+                attendedHours: 0,
+                totalHours: 3
             }
         ],
         // Add more courses and their schedule details here
     });
+
+
     const [courseParticipants, setParticipants] = useState({
         'Algorithms': [
             { id: 111111111, name: 'John Doe', attendance: '3/13' },
@@ -60,13 +68,14 @@ export default function DashboardPage() {
         setSelectedDate(date);
     };
 
-    const handleCourseClick = (course) => {
-        setSelectedCourse(course);
+    const handleCourseClick = (item) => {
+        setSelectedCourse(item);
     };
 
     const handleBackClick = () => {
         setSelectedCourse(null);
     };
+
 
     return (
         <main>
@@ -208,6 +217,7 @@ export default function DashboardPage() {
                                 schedule={courseSchedule[selectedCourse] || []}
                                 participants={courseParticipants[selectedCourse] || []}
                                 onBack={handleBackClick}
+
                             />
                         )}
 
