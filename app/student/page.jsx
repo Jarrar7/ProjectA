@@ -12,7 +12,7 @@ import YearSemesterFilter from '../components/YearSemesterFilter';
 import CalendarComponent from '../components/CalendarComponent';
 import Profile from '../components/Profile';
 import Notifications from '../components/Settings';
-
+import withRoleProtection from "../components/hoc/withRoleProtection";
 import { useUser } from "../context/UserContext"
 
 function StudentDashboard() {
