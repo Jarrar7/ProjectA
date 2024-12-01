@@ -10,6 +10,8 @@ import ParticipanceTable from '../components/ParticipanceTable.jsx';
 import YearSemesterFilter from '../components/YearSemesterFilter';
 import { useUser } from "../context/UserContext"
 
+import ParticipanceTable from '../components/ParticipanceTable.jsx';
+import YearSemesterFilter from '../components/YearSemesterFilter';
 
 import CalendarComponent from '../components/CalendarComponent';
 import Profile from '../components/Profile';
