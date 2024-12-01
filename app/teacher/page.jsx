@@ -12,6 +12,7 @@ import CalendarComponent from '../components/CalendarComponent';
 import Profile from '../components/Profile';
 import Settings from '../components/Settings';
 import { useUser } from "../context/UserContext"
+import withRoleProtection from "../components/hoc/withRoleProtection";
 
 
 function TeacherDashboard() {

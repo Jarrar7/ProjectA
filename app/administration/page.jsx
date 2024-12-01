@@ -9,11 +9,15 @@ import Header from '../components/Header';
 
 import ManageUsers from '../components/ManageUsers';
 import ManageCourses from '../components/ManageCourses';
+import withRoleProtection from "../components/hoc/withRoleProtection";
 import CalendarComponent from '../components/CalendarComponent';
 import Profile from '../components/Profile';
 import Settings from '../components/Settings';
 
 import { useUser } from "../context/UserContext"
+import Notifications from '../components/Notifications';
+import ManageUsers from '../components/ManageUsers';
+
 
 function AdminDashboard() {
     const [activeSection, setActiveSection] = useState('manageUsers');
@@ -81,3 +85,5 @@ function AdminDashboard() {
 }
 
 
+
+export default withRoleProtection(AdminDashboard, ["admin"]);
