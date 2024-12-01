@@ -1,6 +1,5 @@
 "use client";
 import 'react-calendar/dist/Calendar.css';
-import Link from 'next/link'
 import { useState } from 'react';
 import Calendar from 'react-calendar';
 
@@ -9,14 +8,19 @@ import Header from '../components/Header';
 
 import ParticipanceTable from '../components/ParticipanceTable.jsx';
 import YearSemesterFilter from '../components/YearSemesterFilter';
+import { useUser } from "../context/UserContext"
+
 
 import CalendarComponent from '../components/CalendarComponent';
 import Profile from '../components/Profile';
 import Notifications from '../components/Settings';
 
-import { useUser } from "../context/UserContext"
 
-export default function DashboardPage() {
+
+
+import withRoleProtection from "../components/hoc/withRoleProtection";
+
+function StudentDashboard() {
     const [activeSection, setActiveSection] = useState('dashboard');
     const { logout } = useUser();
     const [items, setItems] = useState(['Algorithms', 'Object-Oriented Programming', 'Web Development', 'Human-Computer Interaction', 'Cloud Computing', 'Database Systems']);
@@ -134,3 +138,4 @@ export default function DashboardPage() {
         </main>
     )
 }
+export default withRoleProtection(StudentDashboard, ["student"]);
