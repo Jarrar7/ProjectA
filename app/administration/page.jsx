@@ -14,10 +14,6 @@ import CalendarComponent from '../components/CalendarComponent';
 import Profile from '../components/Profile';
 import Settings from '../components/Settings';
 
-import { useUser } from "../context/UserContext"
-import Notifications from '../components/Notifications';
-import ManageUsers from '../components/ManageUsers';
-
 
 
 import { useUser } from "../context/UserContext"
