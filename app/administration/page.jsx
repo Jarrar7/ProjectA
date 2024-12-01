@@ -1,16 +1,16 @@
 "use client";
 import 'react-calendar/dist/Calendar.css';
-import Link from 'next/link'
 import { useState } from 'react';
-import Calendar from 'react-calendar';
+import { useUser } from "../context/UserContext"
 
+import withRoleProtection from "../components/hoc/withRoleProtection";
 import CalendarComponent from '../components/CalendarComponent';
 import Profile from '../components/Profile';
 import Notifications from '../components/Notifications';
 import ManageUsers from '../components/ManageUsers';
-import { useUser } from "../context/UserContext"
 
-export default function Administration() {
+
+function AdminDashboard() {
     const [activeSection, setActiveSection] = useState('manageUsers');
     const { logout } = useUser();
     const [selectedDate, setSelectedDate] = useState(new Date());
@@ -154,3 +154,5 @@ export default function Administration() {
         </main>
     )
 }
+
+export default withRoleProtection(AdminDashboard, ["admin"]);
