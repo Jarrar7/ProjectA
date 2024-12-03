@@ -10,6 +10,7 @@ import ParticipanceTable from '../components/ParticipanceTable.jsx';
 import YearSemesterFilter from '../components/YearSemesterFilter';
 
 import CalendarComponent from '../components/CalendarComponent';
+import Messages from '../components/Messages';
 import Profile from '../components/Profile';
 import Notifications from '../components/Settings';
 import withRoleProtection from "../components/hoc/withRoleProtection";
@@ -108,6 +109,10 @@ function StudentDashboard() {
                                 data={courseSchedule[selectedCourse] || []}
                                 onBack={handleBackClick}
                             />
+                        )}
+
+                        {activeSection === 'messages' && (
+                            <Messages />
                         )}
 
                         {activeSection === 'calendar' && (

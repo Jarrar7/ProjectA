@@ -8,10 +8,11 @@ import Header from '../components/Header';
 
 import CourseScheduleTable from '../components/CourseScheduleTable';
 import YearSemesterFilter from '../components/YearSemesterFilter';
+
+import Messages from '../components/Messages'
 import CalendarComponent from '../components/CalendarComponent';
 import Profile from '../components/Profile';
 import Settings from '../components/Settings';
-import CourseScheduleTable from '../components/CourseScheduleTable'; 
 
 import { useUser } from "../context/UserContext"
 import withRoleProtection from "../components/hoc/withRoleProtection";
@@ -121,9 +122,11 @@ function TeacherDashboard() {
                                 schedule={courseSchedule[selectedCourse] || []}
                                 participants={courseParticipants[selectedCourse] || []}
                                 onBack={handleBackClick}
-
-                                
                             />
+                        )}
+
+                        {activeSection === 'messages' && (
+                            <Messages />
                         )}
 
                         {activeSection === 'calendar' && (
