@@ -14,6 +14,7 @@ import { useUser } from "../context/UserContext"
 
 
 import CalendarComponent from '../components/CalendarComponent';
+import Messages from '../components/Messages';
 import Profile from '../components/Profile';
 import Notifications from '../components/Settings';
 
@@ -115,6 +116,10 @@ function StudentDashboard() {
                                 data={courseSchedule[selectedCourse] || []}
                                 onBack={handleBackClick}
                             />
+                        )}
+
+                        {activeSection === 'messages' && (
+                            <Messages />
                         )}
 
                         {activeSection === 'calendar' && (
