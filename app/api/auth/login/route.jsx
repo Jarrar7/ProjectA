@@ -10,6 +10,7 @@ export async function POST(request) {
             password,
         });
 
+
         if (error) {
             if (error.code === 'email_not_confirmed') {
                 return new Response(
@@ -38,7 +39,7 @@ export async function POST(request) {
 
         // Send the role and user data to the client
         return new Response(
-            JSON.stringify({ message: 'Login successful', user: { ...data.user, role: profileData.role } }),
+            JSON.stringify({ message: 'Login successful', session: data.session, user: { ...data.user, role: profileData.role } }),
             { status: 200 }
         );
     } catch (err) {
