@@ -1,22 +1,21 @@
 import { supabase } from "../../../../lib/supabaseClient";
-import { supabaseService } from "../../../../lib/supabaseServiceClient";
 import { NextResponse } from "next/server";
 
 export async function POST(request) {
     const { firstName, lastName, human_id, role, email, password } = await request.json();
 
     try {
-        // Step 1: Create the user in Supabase Auth
-        const { data, error: signupError } = await supabaseService.auth.admin.createUser({
+        // Step 1: Sign up the user
+        const { data: signupData, error: signupError } = await supabase.auth.signUp({
             email: email,
             password: password,
-            email_confirm: true,
-            user_metadata: {
-                name: firstName + ' ' + lastName,
-                academic_role: role,
-                human_id: human_id
-            }
-
+            options: {
+                data: {
+                    name: `${firstName} ${lastName}`,
+                    academic_role: role,
+                    human_id: human_id,
+                },
+            },
         });
 
         if (signupError) {
@@ -24,10 +23,10 @@ export async function POST(request) {
             return NextResponse.json({ message: signupError.message }, { status: 400 });
         }
 
-        const userId = data.user.id; // Get the user ID from the signup response
+        const userId = signupData.user.id; // Get the user ID from the signup response
 
-        // Step 2: Insert user metadata into the `profiles` table using the service client
-        const { error: profileError } = await supabaseService
+        // Step 2: Insert user metadata into the `profiles` table
+        const { error: profileError } = await supabase
             .from("profiles")
             .insert({
                 id: userId, // Use the user ID as the profile ID
@@ -43,7 +42,8 @@ export async function POST(request) {
             return NextResponse.json({ message: profileError.message }, { status: 400 });
         }
 
-        return NextResponse.json({ message: "User created successfully!" });
+        // Step 3: Return success response
+        return NextResponse.json({ message: "User created successfully!", session: signupData.session });
     } catch (error) {
         console.error("API Error:", error);
         return NextResponse.json({ message: "Internal server error" }, { status: 500 });
