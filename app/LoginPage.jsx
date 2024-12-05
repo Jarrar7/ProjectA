@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "./context/UserContext"; // Import UserContext
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { supabase } from "../lib/supabaseClient"
+import { supabase } from "../lib/supabaseClient";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -24,41 +24,43 @@ export default function LoginPage() {
     }
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const result = await res.json();
-    console.log(await supabase.auth.getSession())
-
     try {
-      localStorage.setItem("supabase.auth.token", JSON.stringify(result.session));
-    } catch (error) {
-      console.error("Error storing session in localStorage:", error);
-    }
+      // Authenticate the user and retrieve session and user data
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (authError || !authData.session) {
+        console.error("Authentication Error:", authError);
+        notify("Invalid email or password", "error");
+        return;
+      }
+      const user = authData.user
+
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError || !profileData) {
+        console.error('Profile Fetch Error:', profileError);
+        notify("Error in fetching profile")
+      }
 
 
-    if (!res.ok) {
-      notify(result.error || "Login failed", "error");
-      return;
-    }
-
-    if (result.user) {
-
-      setUser({ ...result.user, session: result.session });
+      // Set the user and session data in context
+      setUser(profileData);
       notify("Login successful!", "success");
-    } else {
-      notify("Failed to retrieve user information", "error");
+    } catch (err) {
+      console.error("Unexpected Error:", err);
+      notify("An unexpected error occurred. Please try again.", "error");
     }
-
   };
-
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-gray-50">
