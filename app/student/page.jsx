@@ -1,19 +1,6 @@
 "use client";
 import 'react-calendar/dist/Calendar.css';
-import { useState } from 'react';
-import Calendar from 'react-calendar';
-
-import SidebarStudentTeacher from '../components/SidebarStudentTeacher';
-import Header from '../components/Header';
-
-import ParticipanceTable from '../components/ParticipanceTable.jsx';
-import YearSemesterFilter from '../components/YearSemesterFilter';
-
-import CalendarComponent from '../components/CalendarComponent';
 import Messages from '../components/Messages';
-import Profile from '../components/Profile';
-import Notifications from '../components/Settings';
-
 import { useState, useEffect } from "react";
 import SidebarStudentTeacher from "../components/SidebarStudentTeacher";
 import Header from "../components/Header";
