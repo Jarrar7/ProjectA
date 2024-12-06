@@ -16,7 +16,6 @@ import Settings from '../components/Settings';
 
 
 
-import { useUser } from "../context/UserContext"
 
 function AdminDashboard() {
     const [activeSection, setActiveSection] = useState('manageUsers');
