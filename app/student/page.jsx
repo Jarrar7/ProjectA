@@ -1,13 +1,7 @@
 "use client";
 import 'react-calendar/dist/Calendar.css';
-import { useState } from 'react';
-import Calendar from 'react-calendar';
 
-import SidebarStudentTeacher from '../components/SidebarStudentTeacher';
-import Header from '../components/Header';
 
-import ParticipanceTable from '../components/ParticipanceTable.jsx';
-import YearSemesterFilter from '../components/YearSemesterFilter';
 import { useUser } from "../context/UserContext"
 
 
@@ -20,10 +14,10 @@ import SidebarStudentTeacher from "../components/SidebarStudentTeacher";
 import Header from "../components/Header";
 import ParticipanceTable from "../components/ParticipanceTable.jsx";
 import YearSemesterFilter from "../components/YearSemesterFilter";
-import CalendarComponent from "../components/CalendarComponent";
+
 import Profile from "../components/Profile";
 import Notifications from "../components/Settings";
-import { useUser } from "../context/UserContext";
+
 import { supabase } from "../../lib/supabaseClient";
 import withRoleProtection from "../components/hoc/withRoleProtection";
 
