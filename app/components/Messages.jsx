@@ -1,66 +1,128 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from "../../lib/supabaseClient"; // Import supabase client
 import MessageSidebar from '../components/Messages/MessageSidebar';
 import MessageListWithDetails from '../components/Messages/MessageListWithDetails';
 import ComposeMessage from '../components/Messages/ComposeMessage';
 
 const MessagesPage = () => {
-    const [selectedSection, setSelectedSection] = useState('Inbox');
-    const [activeMessage, setActiveMessage] = useState(null);
+  const [selectedSection, setSelectedSection] = useState('Inbox');
+  const [activeMessage, setActiveMessage] = useState(null);
 
-    const [inboxMessages, setInboxMessages] = useState([
-        { id: 1, sender: 'Teacher A', subject: 'Attendance Issue', date: '2024-11-29', body: 'You were marked absent.' },
-        { id: 2, sender: 'Teacher B', subject: 'Lecture Reminder', date: '2024-11-28', body: 'Reminder for lecture.' },
-    ]);
+  // State to hold messages from Supabase
+  const [inboxMessages, setInboxMessages] = useState([]);
+  const [sentMessages, setSentMessages] = useState([]);
+  const [draftMessages, setDraftMessages] = useState([]);
 
-    const [sentMessages, setSentMessages] = useState([
-        { id: 3, sender: 'You', subject: 'Attendance Clarification', date: '2024-11-27', body: 'I was present for this lecture.' },
-        { id: 4, sender: 'You', subject: 'Follow-Up: Attendance Issue', date: '2024-11-26', body: 'Can you confirm my attendance?' },
-    ]);
+  useEffect(() => {
+    const fetchMessages = async () => {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*');
+    
+      if (error) {
+        console.error('Error fetching messages:', error);
+        return;
+      }
 
-    const [draftMessages, setDraftMessages] = useState([
-        { id: 5, sender: 'You', subject: 'Meeting Request', date: '2024-11-25', body: 'I would like to discuss my attendance records.' },
-        { id: 6, sender: 'You', subject: 'Lecture Notes Request', date: '2024-11-24', body: 'Could you share the notes from today’s lecture?' },
-    ]);
+      const userId = '059f65c5-a0a4-4d33-8d14-817d82045621';  // Replace with the actual user ID
 
-    const handleSend = (message) => {
-        setSentMessages((prev) => [
-            ...prev,
-            { ...message, id: Date.now(), sender: 'You', date: new Date().toLocaleDateString() },
-        ]);
-        setSelectedSection('Sent');
+      // Filter inbox, sent, and draft messages based on the 'is_sent' flag
+      const inbox = data.filter(
+        (message) => message.receiver_id === userId && message.is_sent
+      );
+      const sent = data.filter(
+        (message) => message.sender_id === userId && message.is_sent
+      );
+      const drafts = data.filter(
+        (message) => message.sender_id === userId && !message.is_sent
+      );
+
+      // Get sender and receiver IDs to fetch profiles
+      const senderIds = [...new Set(data.map((message) => message.sender_id))];
+      const receiverIds = [...new Set(data.map((message) => message.receiver_id))];
+
+      const { data: sendersProfiles, error: sendersError } = await supabase
+        .from('profiles')
+        .select('id, firstName, lastName')
+        .in('id', senderIds);
+
+      const { data: receiversProfiles, error: receiversError } = await supabase
+        .from('profiles')
+        .select('id, firstName, lastName')
+        .in('id', receiverIds);
+
+      if (sendersError || receiversError) {
+        console.error('Error fetching profiles:', sendersError || receiversError);
+        return;
+      }
+
+      // Map profile data to the messages
+      const mappedMessages = data.map((message) => {
+        const senderProfile = sendersProfiles.find(
+          (profile) => profile.id === message.sender_id
+        );
+        const receiverProfile = receiversProfiles.find(
+          (profile) => profile.id === message.receiver_id
+        );
+
+        return {
+          ...message,
+          senderName: senderProfile ? `${senderProfile.firstName} ${senderProfile.lastName}` : 'Unknown Sender',
+          receiverName: receiverProfile ? `${receiverProfile.firstName} ${receiverProfile.lastName}` : 'Unknown Receiver',
+        };
+      });
+
+      // Set messages for each section
+      setInboxMessages(mappedMessages.filter((message) => message.receiver_id === userId && message.is_sent));
+      setSentMessages(mappedMessages.filter((message) => message.sender_id === userId && message.is_sent));
+      setDraftMessages(mappedMessages.filter((message) => message.sender_id === userId && !message.is_sent));
     };
 
-    return (
-        <div className="flex h-screen">
-            <MessageSidebar
-                selectedSection={selectedSection}
-                setSelectedSection={setSelectedSection}
-                setActiveMessage={setActiveMessage} // Reset active message on section change
-            />
-            {selectedSection === 'Inbox' && (
-                <MessageListWithDetails
-                    messages={inboxMessages}
-                    activeMessage={activeMessage}
-                    setActiveMessage={setActiveMessage}
-                />
-            )}
-            {selectedSection === 'Sent' && (
-                <MessageListWithDetails
-                    messages={sentMessages}
-                    activeMessage={activeMessage}
-                    setActiveMessage={setActiveMessage}
-                />
-            )}
-            {selectedSection === 'Drafts' && (
-                <MessageListWithDetails
-                    messages={draftMessages}
-                    activeMessage={activeMessage}
-                    setActiveMessage={setActiveMessage}
-                />
-            )}
-            {selectedSection === 'New Message' && <ComposeMessage onSend={handleSend} />}
-        </div>
-    );
+    fetchMessages();
+  }, []);
+
+  const handleSend = (message) => {
+    setSentMessages((prev) => [
+      ...prev,
+      { ...message, id: Date.now(), sender: 'You', date: new Date().toLocaleDateString() },
+    ]);
+    setSelectedSection('Sent');
+  };
+
+  return (
+    <div className="flex h-screen bg-gray-50">
+      <MessageSidebar
+        selectedSection={selectedSection}
+        setSelectedSection={setSelectedSection}
+        setActiveMessage={setActiveMessage} // Reset active message on section change
+      />
+      <div className="flex-1 p-6 bg-white rounded-lg shadow-lg overflow-y-auto">
+        {selectedSection === 'Inbox' && (
+          <MessageListWithDetails
+            messages={inboxMessages} // or sentMessages, draftMessages based on section
+            activeMessage={activeMessage}
+            setActiveMessage={setActiveMessage}
+            selectedSection={selectedSection} // Pass selectedSection here
+          />
+        )}
+        {selectedSection === 'Sent' && (
+          <MessageListWithDetails
+            messages={sentMessages}
+            activeMessage={activeMessage}
+            setActiveMessage={setActiveMessage}
+          />
+        )}
+        {selectedSection === 'Drafts' && (
+          <MessageListWithDetails
+            messages={draftMessages}
+            activeMessage={activeMessage}
+            setActiveMessage={setActiveMessage}
+          />
+        )}
+        {selectedSection === 'New Message' && <ComposeMessage onSend={handleSend} />}
+      </div>
+    </div>
+  );
 };
 
 export default MessagesPage;
