@@ -1,6 +1,5 @@
-import React from "react";
-
 const YearSemesterFilter = ({ selectedYear, setSelectedYear, selectedSemester, setSelectedSemester }) => (
+
     <div className="flex items-center space-x-4 mb-4">
         <div>
             <label htmlFor="year-select" className="block text-gray-700 font-medium">
