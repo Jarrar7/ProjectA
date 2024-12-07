@@ -14,9 +14,6 @@ import CalendarComponent from '../components/CalendarComponent';
 import Profile from '../components/Profile';
 import Settings from '../components/Settings';
 
-
-
-
 function AdminDashboard() {
     const [activeSection, setActiveSection] = useState('manageUsers');
     const { logout } = useUser();
@@ -81,7 +78,6 @@ function AdminDashboard() {
         </main>
     )
 }
-
 
 
 export default withRoleProtection(AdminDashboard, ["admin"]);

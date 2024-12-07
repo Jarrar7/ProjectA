@@ -8,7 +8,6 @@ import Header from '../components/Header';
 
 import CourseScheduleTable from '../components/CourseScheduleTable';
 import YearSemesterFilter from '../components/YearSemesterFilter';
-import withRoleProtection from "../components/hoc/withRoleProtection";
 
 import Messages from '../components/Messages'
 import CalendarComponent from '../components/CalendarComponent';
@@ -16,6 +15,8 @@ import Profile from '../components/Profile';
 import Settings from '../components/Settings';
 
 import { useUser } from "../context/UserContext"
+import withRoleProtection from "../components/hoc/withRoleProtection";
+
 
 function TeacherDashboard() {
     const [activeSection, setActiveSection] = useState('dashboard');
@@ -56,7 +57,7 @@ function TeacherDashboard() {
         // Add more courses and their schedule details here
     });
 
-
+    
     const [courseParticipants, setParticipants] = useState({
         'Algorithms': [
             { id: 111111111, name: 'John Doe', attendance: '3/13' },
@@ -66,7 +67,7 @@ function TeacherDashboard() {
         ],
         // Add more participants
     });
-
+    
 
     // Define the handleDateChange function here
     const handleDateChange = (date) => {
@@ -112,7 +113,7 @@ function TeacherDashboard() {
                                                 {item}
                                             </button>
                                         </div>
-                                    ))}
+                                    ))}                     
                                 </div>
                             </div>
                         )}
@@ -121,7 +122,6 @@ function TeacherDashboard() {
                                 schedule={courseSchedule[selectedCourse] || []}
                                 participants={courseParticipants[selectedCourse] || []}
                                 onBack={handleBackClick}
-
                             />
                         )}
 
