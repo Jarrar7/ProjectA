@@ -34,29 +34,40 @@ export default function ManageCourses() {
             }
         };
         fetchCourses();
-    }, []);
+    });
 
     const handleSelectCourse = async (course) => {
         setSelectedCourse(course);
+
         try {
             const { data: studentsData, error: studentsError } = await supabase
                 .from("enrollments")
                 .select("student_id, profiles:student_id(firstName, lastName, human_id)")
                 .eq("course_id", course.id);
+
             if (studentsError) throw studentsError;
-            setEnrolledStudents(studentsData.map((enrollment) => enrollment.profiles || null));
+
+            // Include both the student_id and the profile details
+            setEnrolledStudents(
+                studentsData.map((enrollment) => ({
+                    student_id: enrollment.student_id,
+                    ...enrollment.profiles, // Add profile details (firstName, lastName, human_id)
+                }))
+            );
 
             const { data: teacherData, error: teacherError } = await supabase
                 .from("profiles")
                 .select("firstName, lastName, human_id")
                 .eq("id", course.teacher_id)
                 .maybeSingle();
+
             if (teacherError) throw teacherError;
             setTeacher(teacherData || null);
         } catch (error) {
             console.error("Error fetching course details:", error.message);
         }
     };
+
 
     const handleBack = () => {
         setSelectedCourse(null);
@@ -140,6 +151,131 @@ export default function ManageCourses() {
         }
     };
 
+    const handleAddStudent = async (studentId, courseId) => {
+        try {
+            // Validate the Student ID (Ensure it exists in the profiles table)
+            const { data: student, error: validationError } = await supabase
+                .from("profiles")
+                .select("id")
+                .eq("human_id", studentId) // Validate based on `human_id`
+                .single();
+
+            if (validationError || !student) {
+                throw new Error("Invalid Student ID. Please check and try again.");
+            }
+
+            // Check if the student is already enrolled in the course
+            const { data: existingEnrollment, error: enrollmentCheckError } = await supabase
+                .from("enrollments")
+                .select("*")
+                .eq("student_id", student.id)
+                .eq("course_id", courseId)
+                .single();
+
+            if (existingEnrollment) {
+                throw new Error("This student is already enrolled in the course.");
+            }
+
+            if (enrollmentCheckError && enrollmentCheckError.code !== "PGRST116") {
+                // Ignore the "Row not found" error (PGRST116) as it means the student is not enrolled
+                throw enrollmentCheckError;
+            }
+
+            // Insert the student into the enrollments table
+            const { error: insertError } = await supabase.from("enrollments").insert({
+                student_id: student.id, // Use the profile ID
+                course_id: courseId,
+            });
+
+            if (insertError) {
+                throw new Error("Failed to enroll student. Please try again later.");
+            }
+
+            // Fetch the updated list of enrolled students
+            const { data: updatedStudents, error: fetchError } = await supabase
+                .from("enrollments")
+                .select("student_id, profiles:student_id(firstName, lastName, human_id)")
+                .eq("course_id", courseId);
+
+            if (fetchError) {
+                throw new Error("Failed to fetch updated students list.");
+            }
+
+            setEnrolledStudents(updatedStudents.map((enrollment) => enrollment.profiles || null));
+            alert("Student successfully added!");
+        } catch (error) {
+            alert(error.message);
+        }
+    };
+
+    const handleRemoveStudent = async (studentId, courseId) => {
+        try {
+            // Validate input
+            if (!studentId || !courseId) {
+                console.error("Invalid studentId or courseId:", { studentId, courseId });
+                alert("Failed to remove student. Invalid data provided.");
+                return;
+            }
+
+            console.log("Removing student with ID:", studentId);
+            console.log("From course with ID:", courseId);
+
+            // Check if the student is enrolled in the course
+            const { data: existingEnrollment, error: enrollmentCheckError } = await supabase
+                .from("enrollments")
+                .select("*")
+                .eq("student_id", studentId)
+                .eq("course_id", courseId)
+                .single();
+
+            console.log("Existing enrollment fetched:", existingEnrollment, "Error:", enrollmentCheckError);
+
+            if (!existingEnrollment) {
+                throw new Error("This student is not enrolled in the course.");
+            }
+
+            if (enrollmentCheckError && enrollmentCheckError.code !== "PGRST116") {
+                throw enrollmentCheckError;
+            }
+
+            // Remove the student from the enrollments table
+            const { error: deleteError } = await supabase
+                .from("enrollments")
+                .delete()
+                .eq("student_id", studentId)
+                .eq("course_id", courseId);
+
+            if (deleteError) {
+                throw new Error("Failed to remove student. Please try again later.");
+            }
+
+            console.log("Student successfully removed. Fetching updated list...");
+
+            // Fetch the updated list of enrolled students
+            const { data: updatedStudents, error: fetchError } = await supabase
+                .from("enrollments")
+                .select("student_id, profiles:student_id(firstName, lastName, human_id)")
+                .eq("course_id", courseId);
+
+            console.log("Updated students list:", updatedStudents);
+
+            if (fetchError) {
+                throw new Error("Failed to fetch updated students list.");
+            }
+
+            setEnrolledStudents(updatedStudents.map((enrollment) => enrollment.profiles || null));
+            alert("Student successfully removed!");
+        } catch (error) {
+            console.error("Error removing student:", error);
+            alert(error.message || "An error occurred while removing the student.");
+        }
+    };
+
+
+
+
+
+
     return (
         <div className="p-6">
             <h1 className="text-3xl font-bold mb-6">Manage Courses</h1>
@@ -167,6 +303,9 @@ export default function ManageCourses() {
                     enrolledStudents={enrolledStudents}
                     teacher={teacher}
                     onBack={handleBack}
+                    onAddStudent={handleAddStudent}
+                    onRemoveStudent={handleRemoveStudent}
+
                 />
             )}
             {isModalOpen && (

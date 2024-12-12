@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 
 const CourseScheduleTable = ({ schedule, participants, onBack }) => {
@@ -131,9 +131,8 @@ const CourseScheduleTable = ({ schedule, participants, onBack }) => {
                                                     value={entry.attendedHours}
                                                     min="0"
                                                     max={totalHours}
-                                                    className={`w-16 text-center ${
-                                                        isComplete ? "text-green-500" : "text-red-500"
-                                                    }`}
+                                                    className={`w-16 text-center ${isComplete ? "text-green-500" : "text-red-500"
+                                                        }`}
                                                     onChange={(e) => handleAttendanceChange(index, parseInt(e.target.value))}
                                                 />
                                                 /{totalHours}
