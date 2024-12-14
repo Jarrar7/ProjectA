@@ -1,7 +1,7 @@
 "use client";
 import 'react-calendar/dist/Calendar.css';
-import { useState } from 'react';
-
+import { useState, useEffect } from "react";
+import { supabase } from "../../lib/supabaseClient";
 
 import SidebarStudentTeacher from '../components/SidebarStudentTeacher';
 import Header from '../components/Header';
@@ -9,79 +9,101 @@ import Header from '../components/Header';
 import CourseScheduleTable from '../components/CourseScheduleTable';
 import YearSemesterFilter from '../components/YearSemesterFilter';
 
-import Messages from '../components/Messages'
+import Messages from '../components/Messages';
 import CalendarComponent from '../components/CalendarComponent';
 import Profile from '../components/Profile';
 import Settings from '../components/Settings';
 
-import { useUser } from "../context/UserContext"
+import { useUser } from "../context/UserContext";
 import withRoleProtection from "../components/hoc/withRoleProtection";
-
 
 function TeacherDashboard() {
     const [activeSection, setActiveSection] = useState('dashboard');
-    const { logout } = useUser();
-    const [items, setItems] = useState(['Algorithms', 'Object-Oriented Programming', 'Web Development', 'Human-Computer Interaction', 'Cloud Computing', 'Database Systems']);
-    const [selectedDate, setSelectedDate] = useState(new Date());
-    const [events, setEvents] = useState({
-        '2024-08-23': ['Meeting with team']
-    });
+    const { logout, user } = useUser();
+    const [items, setItems] = useState([]); // Dynamically fetched courses
     const [selectedCourse, setSelectedCourse] = useState(null);
-    const [courseSchedule, setCourseSchedule] = useState({
-        'Algorithms': [
-            {
-                date: '2024-09-01',
-                dayOfWeek: 'Sunday',
-                hours: '10:00 - 12:00',
-                room: 'Room 101',
-                attendedHours: 2,
-                totalHours: 3
-            },
-            {
-                date: '2024-09-08',
-                dayOfWeek: 'Sunday',
-                hours: '10:00 - 12:00',
-                room: 'Room 102',
-                attendedHours: 3,
-                totalHours: 3
-            },
-            {
-                date: '2024-09-15',
-                dayOfWeek: 'Sunday',
-                hours: '10:00 - 12:00',
-                room: 'Room 103',
-                attendedHours: 0,
-                totalHours: 3
+    const [courseSchedule, setCourseSchedule] = useState([]);
+    const [courseParticipants, setParticipants] = useState([]);
+
+    useEffect(() => {
+        // Fetch teacher's courses on component mount
+        const fetchCourses = async () => {
+            if (!user) return;
+
+            try {
+                const { data: courses, error } = await supabase
+                    .from("courses")
+                    .select("id, course_name")
+                    .eq("teacher_id", user.id);
+
+                if (error) {
+                    console.error("Error fetching courses:", error.message);
+                    return;
+                }
+
+                setItems(courses);
+            } catch (err) {
+                console.error("Error fetching courses:", err);
             }
-        ],
-        // Add more courses and their schedule details here
-    });
+        };
 
-    
-    const [courseParticipants, setParticipants] = useState({
-        'Algorithms': [
-            { id: 111111111, name: 'John Doe', attendance: '3/13' },
-            { id: 222222222, name: 'Jane Smith', attendance: '2/13' },
-            { id: 333333333, name: 'Alice Johnson', attendance: '4/13' },
-            { id: 444444444, name: 'Bob Brown', attendance: '0/13' }
-        ],
-        // Add more participants
-    });
-    
+        fetchCourses();
+    }, [user]);
 
-    // Define the handleDateChange function here
-    const handleDateChange = (date) => {
-        setSelectedDate(date);
+    const handleCourseClick = async (course) => {
+        setSelectedCourse(course);
+
+        try {
+            // Fetch course schedule
+            const { data: schedule, error: scheduleError } = await supabase
+                .from("class_sessions")
+                .select("*")
+                .eq("course_id", course.id);
+
+            if (scheduleError) {
+                console.error("Error fetching course schedule:", scheduleError.message);
+                return;
+            }
+
+            setCourseSchedule(schedule);
+
+
+
+
+            // Fetch course participants with attendance data
+            const { data: participants, error: participantsError } = await supabase.rpc(
+                'fetch_participant_attendance', // Use a Supabase function for the SQL
+                { course_uuid: course.id } // Pass the course ID
+            );
+
+
+
+            if (participantsError) {
+                console.error("Error fetching participants:", participantsError.message);
+                return;
+            }
+
+            setParticipants(
+                participants.map((participant) => ({
+                    id: participant.student_id,
+                    human_id: participant.human_id,
+                    name: participant.full_name || "Unknown User",
+                    attendance: `${participant.attended_sessions}/${participant.total_sessions}`,
+                }))
+            );
+        } catch (err) {
+            console.error("Error fetching course details:", err);
+        }
     };
 
-    const handleCourseClick = (item) => {
-        setSelectedCourse(item);
-    };
+
+
 
     const handleBackClick = () => {
         setSelectedCourse(null);
+        setCourseSchedule([]);
+        setParticipants([]);
     };
-
 
     return (
         <main>
@@ -104,23 +126,22 @@ function TeacherDashboard() {
                         {activeSection === 'dashboard' && !selectedCourse && (
                             <div>
                                 <h2 className="text-2xl font-bold mb-4">Your Courses</h2>
-                                {/* Filters */}
                                 <YearSemesterFilter />
                                 <div className="grid grid-cols-3 gap-6">
-                                    {items.map((item, index) => (
-                                        <div key={index} className="bg-white shadow-md rounded-lg p-6">
-                                            <button onClick={() => handleCourseClick(item)}>
-                                                {item}
+                                    {items.map((course) => (
+                                        <div key={course.id} className="bg-white shadow-md rounded-lg p-6">
+                                            <button onClick={() => handleCourseClick(course)}>
+                                                {course.course_name}
                                             </button>
                                         </div>
-                                    ))}                     
+                                    ))}
                                 </div>
                             </div>
                         )}
                         {selectedCourse && (
                             <CourseScheduleTable
-                                schedule={courseSchedule[selectedCourse] || []}
-                                participants={courseParticipants[selectedCourse] || []}
+                                schedule={courseSchedule}
+                                participants={courseParticipants}
                                 onBack={handleBackClick}
                             />
                         )}
@@ -130,11 +151,7 @@ function TeacherDashboard() {
                         )}
 
                         {activeSection === 'calendar' && (
-                            <CalendarComponent
-                                events={events}
-                                selectedDate={selectedDate}
-                                onDateChange={handleDateChange}
-                            />
+                            <CalendarComponent />
                         )}
                         {activeSection === 'profile' && (
                             <div className="flex-1 overflow-auto">
@@ -150,7 +167,7 @@ function TeacherDashboard() {
                 </div>
             </div>
         </main>
-    )
+    );
 }
 
 export default withRoleProtection(TeacherDashboard, ["teacher"]);
