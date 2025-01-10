@@ -1,11 +1,13 @@
 import { supabase } from "../../../../lib/supabaseClient";
 import { NextResponse } from "next/server";
+import { supabaseService } from "../../../../lib/supabaseServiceClient";
 
 export async function POST(request) {
-    const { firstName, lastName, human_id, role, email, password } = await request.json();
+    const { firstName, lastName, human_id, role, email, password, photo_url } = await request.json();
+
 
     try {
-        // Step 1: Sign up the user
+        // Sign up the user
         const { data: signupData, error: signupError } = await supabase.auth.signUp({
             email: email,
             password: password,
@@ -25,13 +27,13 @@ export async function POST(request) {
 
         const userId = signupData.user.id; // Get the user ID from the signup response
 
-        // Step 2: Insert user metadata into the `profiles` table
-        const { error: profileError } = await supabase
+        // Insert user metadata into the `profiles` table
+        const { error: profileError } = await supabaseService
             .from("profiles")
             .insert({
                 id: userId, // Use the user ID as the profile ID
                 human_id,
-                picture: null,
+                photo_url,
                 firstName,
                 lastName,
                 role,
@@ -42,7 +44,7 @@ export async function POST(request) {
             return NextResponse.json({ message: profileError.message }, { status: 400 });
         }
 
-        // Step 3: Return success response
+        // Return success response
         return NextResponse.json({ message: "User created successfully!", session: signupData.session });
     } catch (error) {
         console.error("API Error:", error);
