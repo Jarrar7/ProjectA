@@ -50,7 +50,7 @@ export async function POST(request) {
                 headers: formData.getHeaders(),
             });
 
-            faceEncoding = response.data.encoding; // Get the face encoding from the response
+            faceEncoding = response.data.encodings[0]; // Get the face encoding from the response
         } catch (faceEncodingError) {
             console.error("Face Encoding Service Error:", faceEncodingError);
             return NextResponse.json({ message: "Failed to generate face encoding" }, { status: 400 });

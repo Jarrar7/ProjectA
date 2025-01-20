@@ -70,8 +70,17 @@ export async function POST(request) {
                     headers: formData.getHeaders(),
                 });
 
-                faceEncodings[human_id] = response.data.encoding; // Save the face encoding
+
+                // Save the face encoding
+                if (response.data && response.data.encodings && response.data.encodings.length > 0) {
+                    faceEncodings[human_id] = response.data.encodings[0]; // Save the first encoding
+                    console.log("Face Encoding for Human ID:", human_id, faceEncodings[human_id]);
+                } else {
+                    console.error(`No encoding found for Human ID: ${human_id}`);
+                }
+
             } catch (encodingError) {
+                console.error("Failed to Fetch Encoding for:", human_id, "Error:", encodingError.message);
                 errors.push({ human_id, error: "Failed to generate face encoding" });
                 continue;
             }
@@ -121,6 +130,7 @@ export async function POST(request) {
 
                 results.push({ email, status: "success" });
             } catch (err) {
+                console.error("Unexpected Error for User:", email, "Error:", err.message);
                 errors.push({ email, error: "Unexpected error occurred" });
             }
         }

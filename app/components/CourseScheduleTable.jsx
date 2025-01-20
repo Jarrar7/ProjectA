@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import FileUploadComponent from "./FileUploadComponent";
 import { supabase } from "../../lib/supabaseClient";
@@ -14,36 +15,49 @@ const CourseScheduleTable = ({ schedule, participants, onBack }) => {
         setShowModal(true);
     };
 
-    // Save file paths to the `uploaded_images` table in Supabase
+    // Save file paths to the `uploaded_images` table in Supabase and update attendance
     const saveFilePathsToDatabase = async (sessionId, filePaths) => {
         try {
-            console.log("Saving file paths to database:", { sessionId, filePaths }); // Debugging
+            console.log("Saving file paths to database:", { sessionId, filePaths });
 
             setUploading(true);
 
+            // Save file paths to the uploaded_images table
             const insertData = filePaths.map((filePath) => ({
                 session_id: sessionId,
                 file_path: filePath,
             }));
 
-            const { data, error } = await supabase.from("uploaded_images").insert(insertData);
-
-            if (error) {
-                console.error("Error saving file paths to database:", error.message);
-                throw error;
+            const { error: insertError } = await supabase.from("uploaded_images").insert(insertData);
+            if (insertError) {
+                console.error("Error saving file paths to database:", insertError.message);
+                throw new Error("Failed to save file paths to the database.");
             }
 
-            console.log("File paths saved to database:", data); // Debugging
-            alert("Images uploaded successfully!");
+            console.log("File paths saved successfully.");
+
+            // Call the attendance update API
+            const response = await fetch("/api/auth/attendance", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ session_id: sessionId, photo_urls: filePaths }),
+            });
+
+            if (!response.ok) {
+                console.error("Error updating attendance:", response.statusText);
+                throw new Error("Failed to update attendance.");
+            }
+
+            console.log("Attendance updated successfully.");
+            alert("Images uploaded and attendance updated successfully!");
         } catch (error) {
-            console.error("Failed to save images to the database:", error.message);
-            alert("Failed to save images to the database.");
+            console.error("Error during upload and attendance update:", error.message);
+            alert(error.message || "An error occurred while processing the uploaded files.");
         } finally {
             setUploading(false);
-            setShowModal(false); // Close modal after saving
+            setShowModal(false); // Close the modal
         }
     };
-
 
     return (
         <div>
@@ -149,7 +163,6 @@ const CourseScheduleTable = ({ schedule, participants, onBack }) => {
                 </div>
             )}
 
-
             {/* Modal for Uploading Photos */}
             {showModal && selectedRow && (
                 <div className="modal-overlay">
@@ -167,7 +180,9 @@ const CourseScheduleTable = ({ schedule, participants, onBack }) => {
 
                         <FileUploadComponent
                             sessionId={selectedRow.id}
-                            onFilesUploaded={(uploadedPaths) => saveFilePathsToDatabase(selectedRow.id, uploadedPaths)}
+                            onFilesUploaded={(uploadedPaths) =>
+                                saveFilePathsToDatabase(selectedRow.id, uploadedPaths)
+                            }
                         />
 
                         <button
