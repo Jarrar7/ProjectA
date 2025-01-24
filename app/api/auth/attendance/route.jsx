@@ -1,11 +1,11 @@
 import { supabaseService } from "../../../../lib/supabaseServiceClient";
-import axios from "axios"; // For calling the Python face encoding service
+import axios from "axios";
 import FormData from "form-data";
 import { NextResponse } from "next/server";
 
 export async function POST(request) {
     try {
-        const { session_id, photo_urls } = await request.json(); // Expect session_id and photo URLs
+        const { session_id, photo_urls } = await request.json();
 
         if (!session_id || !photo_urls || photo_urls.length === 0) {
             console.error("Invalid input: session_id or photo_urls missing.");
@@ -22,7 +22,6 @@ export async function POST(request) {
             return NextResponse.json({ message: "Failed to fetch student profiles" }, { status: 400 });
         }
 
-        // Filter out profiles with null or invalid face encodings
         const validProfiles = profiles.filter((profile) => Array.isArray(profile.face_encoding));
         if (validProfiles.length === 0) {
             console.warn("No valid profiles with face encodings found.");
@@ -31,26 +30,38 @@ export async function POST(request) {
 
         console.log("Valid profiles for matching:", validProfiles);
 
-        // Prepare to track attendance
-        const attendanceMap = new Map(); // Map to track attendance: student_id => attended_hours
-        let totalHours = 0; // Track total hours based on the number of photos processed
+        const attendanceMap = new Map();
+        const lenientMatches = [];
+        const studentMaxHours = {};
+
+        // Fetch attendance records to populate total_hours for each student
+        const { data: attendanceRecords, error: attendanceFetchError } = await supabaseService
+            .from("attendance_records")
+            .select("student_id, total_hours, attended_hours")
+            .eq("session_id", session_id);
+
+        if (attendanceFetchError) {
+            console.error("Attendance Records Fetch Error:", attendanceFetchError);
+            return NextResponse.json({ message: "Failed to fetch attendance records" }, { status: 400 });
+        }
+
+        attendanceRecords.forEach((record) => {
+            studentMaxHours[record.student_id] = record.total_hours || 0;
+        });
+
+        console.log("Student Max Hours Map:", studentMaxHours);
 
         for (const photoUrl of photo_urls) {
-            // Step 1: Download the photo from Supabase storage
             const { data: photoData, error: photoFetchError } = await supabaseService.storage
                 .from("attendance-photos")
                 .download(photoUrl);
 
             if (photoFetchError) {
                 console.error(`Photo Fetch Error for ${photoUrl}:`, photoFetchError);
-                totalHours++; // Increment total hours even if the photo failed to process
-                continue; // Skip this photo
+                continue;
             }
 
             const photoBuffer = Buffer.from(await photoData.arrayBuffer());
-            console.log(`Photo Buffer Length for ${photoUrl}:`, photoBuffer.length);
-
-            // Step 2: Send the photo to the Python face encoding service
             let detectedEncodings = [];
             try {
                 const formData = new FormData();
@@ -60,58 +71,75 @@ export async function POST(request) {
                     headers: formData.getHeaders(),
                 });
 
-                detectedEncodings = response.data.encodings; // Get detected face encodings
-                console.log(`Python Service Raw Response for ${photoUrl}:`, response.data);
+                detectedEncodings = response.data.encodings;
 
                 if (!detectedEncodings || detectedEncodings.length === 0) {
                     console.warn(`No face encodings detected in photo: ${photoUrl}`);
-                    totalHours++; // Increment total hours even if no faces are detected
-                    continue; // Skip this photo
+                    continue;
                 }
             } catch (encodingError) {
                 console.error("Face Encoding Service Error:", encodingError);
-                totalHours++; // Increment total hours even if the encoding service fails
-                continue; // Skip this photo
+                continue;
             }
 
-            // Step 3: Match detected encodings with stored profiles
+            const matchedStudents = new Set();
+
+            // Strict Matching
             for (const detectedEncoding of detectedEncodings) {
-                if (!Array.isArray(detectedEncoding)) {
-                    console.error("Invalid detected encoding:", detectedEncoding);
-                    continue;
-                }
+                let bestMatchId = null;
+                let bestDistance = Infinity;
 
                 for (const profile of validProfiles) {
                     const storedEncoding = profile.face_encoding;
 
-                    if (!Array.isArray(storedEncoding)) {
-                        console.error(`Invalid stored encoding for profile ID ${profile.id}`);
-                        continue;
+                    const distance = calculateDistance(storedEncoding, detectedEncoding);
+
+                    if (distance < 0.60 && distance < bestDistance) {
+                        bestMatchId = profile.id;
+                        bestDistance = distance;
                     }
 
-                    const distance = calculateDistance(storedEncoding, detectedEncoding);
-                    console.log(`Distance between stored and detected encoding: ${distance}`);
+                    // Lenient match collection
+                    if (distance >= 0.60 && distance <= 0.65) {
+                        lenientMatches.push({
+                            student_id: profile.id,
+                            distance,
+                            photoUrl,
+                        });
+                    }
+                }
 
-                    if (distance < 0.6) {
-                        // Increment attended_hours for this student
-                        attendanceMap.set(
-                            profile.id,
-                            (attendanceMap.get(profile.id) || 0) + 1
-                        );
+                if (bestMatchId && !matchedStudents.has(bestMatchId)) {
+                    const maxHours = photo_urls.length; // Use uploaded photos as total hours
+                    const currentAttendance = attendanceMap.get(bestMatchId) || 0;
+
+                    if (currentAttendance < maxHours) {
+                        attendanceMap.set(bestMatchId, currentAttendance + 1);
+                        matchedStudents.add(bestMatchId);
                     }
                 }
             }
-
-            totalHours++; // Increment total hours for successfully processed photo
         }
 
-        console.log("Attendance Map (before updates):", Array.from(attendanceMap.entries()));
-        console.log("Total Hours:", totalHours);
+        console.log("Attendance Map (before lenient review):", Array.from(attendanceMap.entries()));
+        console.log("Lenient Matches for Review:", lenientMatches);
 
-        // Step 4: Update attendance records
+        // Process lenient matches
+        lenientMatches.forEach(({ student_id, distance, photoUrl }) => {
+            const maxHours = photo_urls.length; // Use uploaded photos as total hours
+            const currentAttendance = attendanceMap.get(student_id) || 0;
+
+            if (currentAttendance < maxHours) {
+                console.log(
+                    `Adding lenient match: Student ${student_id}, Distance: ${distance}, Photo: ${photoUrl}`
+                );
+                attendanceMap.set(student_id, currentAttendance + 1);
+            }
+        });
+
+        // Update attendance records in Supabase
         for (const [studentId, attendedHours] of attendanceMap.entries()) {
             try {
-                // Fetch or create an attendance record
                 const { data: existingRecord, error: fetchError } = await supabaseService
                     .from("attendance_records")
                     .select("*")
@@ -125,7 +153,8 @@ export async function POST(request) {
                 }
 
                 if (!existingRecord) {
-                    // Insert a new record if none exists
+                    const totalHours = photo_urls.length; // Set total hours dynamically
+
                     const { error: insertError } = await supabaseService
                         .from("attendance_records")
                         .insert({
@@ -140,11 +169,13 @@ export async function POST(request) {
                         continue;
                     }
                 } else {
-                    // Update attended_hours and total_hours for the existing record
+                    const totalHours = photo_urls.length; // Set total hours dynamically
+                    const newAttendedHours = Math.min(existingRecord.attended_hours + attendedHours, totalHours);
+
                     const { error: updateError } = await supabaseService
                         .from("attendance_records")
                         .update({
-                            attended_hours: existingRecord.attended_hours + attendedHours,
+                            attended_hours: newAttendedHours,
                             total_hours: totalHours,
                         })
                         .eq("session_id", session_id)
@@ -159,23 +190,21 @@ export async function POST(request) {
             }
         }
 
-        return NextResponse.json({ message: "Attendance updated successfully!" });
+        return NextResponse.json({
+            message: "Attendance updated successfully!",
+            lenient_matches: lenientMatches,
+        });
     } catch (error) {
         console.error("Error during attendance update:", error);
         return NextResponse.json({ message: "Internal server error" }, { status: 500 });
     }
 }
 
-// Utility function to calculate distance between two encodings
+// Utility function to calculate distance
 function calculateDistance(encoding1, encoding2) {
-    if (!Array.isArray(encoding1) || !Array.isArray(encoding2)) {
-        console.error("Invalid encoding passed to calculateDistance:", { encoding1, encoding2 });
-        return Number.MAX_VALUE; // High distance to avoid matching
-    }
-    if (encoding1.length !== encoding2.length) {
-        console.error("Encoding lengths do not match:", { encoding1, encoding2 });
-        return Number.MAX_VALUE;
-    }
+    if (!Array.isArray(encoding1) || !Array.isArray(encoding2)) return Number.MAX_VALUE;
+    if (encoding1.length !== encoding2.length) return Number.MAX_VALUE;
+
     return Math.sqrt(
         encoding1.reduce((sum, val, idx) => sum + Math.pow(val - encoding2[idx], 2), 0)
     );
