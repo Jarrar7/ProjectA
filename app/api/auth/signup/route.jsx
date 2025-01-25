@@ -46,7 +46,7 @@ export async function POST(request) {
             const formData = new FormData();
             formData.append("image", photoBuffer, { filename: "photo.jpg" }); // Add photo buffer as form-data
 
-            const response = await axios.post("http://127.0.0.1:5000/encode", formData, {
+            const response = await axios.post("http://127.0.0.1:5001/encode", formData, {
                 headers: formData.getHeaders(),
             });
 
