@@ -1,162 +1,151 @@
-//import UserCircleIcon from '@heroicons/react/24/solid'
+"use client";
 
-export default function Example() {
+import { useUser } from "../context/UserContext"; 
+
+export default function ProfileForm() {
+  const { user, loading } = useUser(); // Access `user` and `loading` from UserContext
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex justify-center items-center">
+        <p>You are not logged in. Please log in to view your profile.</p>
+      </div>
+    );
+  }
+
   return (
-    <form>
-        <div className="border-b border-gray-900/10 pb-12">
-        <h2 className="text-2xl font-bold mb-4">Your Profile</h2>
-          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-            <div className="sm:col-span-3">
-              <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">
-                First name
-              </label>
-              <div className="mt-2">
-                <input
-                  id="first-name"
-                  name="first-name"
-                  type="text"
-                  autoComplete="given-name"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
+    <form className="space-y-8 bg-white p-6 rounded-lg shadow-lg">
+      {/* Profile Header */}
+      <div className="border-b border-gray-200 pb-8">
+        <h2 className="text-3xl font-semibold text-gray-900">Your Profile</h2>
+        <p className="mt-2 text-base text-gray-600">
+          Update your information and profile picture.
+        </p>
+      </div>
 
-            <div className="sm:col-span-3">
-              <label htmlFor="last-name" className="block text-sm font-medium leading-6 text-gray-900">
-                Last name
-              </label>
-              <div className="mt-2">
-                <input
-                  id="last-name"
-                  name="last-name"
-                  type="text"
-                  autoComplete="family-name"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
-
-            <div className="sm:col-span-4">
-              <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
-                Email address
-              </label>
-              <div className="mt-2">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
-
-            <div className="col-span-full">
-              <label htmlFor="photo" className="block text-sm font-medium leading-6 text-gray-900">
-                Photo
-              </label>
-              <div className="mt-2 flex items-center gap-x-3">
-                {/* <UserCircleIcon aria-hidden="true" className="h-12 w-12 text-gray-300" /> */}
-                <button
-                  type="button"
-                  className="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                >
-                  Change
-                </button>
-              </div>
-            </div>
-
-            <div className="sm:col-span-3">
-              <label htmlFor="country" className="block text-sm font-medium leading-6 text-gray-900">
-                Country
-              </label>
-              <div className="mt-2">
-                <select
-                  id="country"
-                  name="country"
-                  autoComplete="country-name"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                >
-                  <option>United States</option>
-                  <option>Canada</option>
-                  <option>Mexico</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="col-span-full">
-              <label htmlFor="street-address" className="block text-sm font-medium leading-6 text-gray-900">
-                Street address
-              </label>
-              <div className="mt-2">
-                <input
-                  id="street-address"
-                  name="street-address"
-                  type="text"
-                  autoComplete="street-address"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
-
-            <div className="sm:col-span-2 sm:col-start-1">
-              <label htmlFor="city" className="block text-sm font-medium leading-6 text-gray-900">
-                City
-              </label>
-              <div className="mt-2">
-                <input
-                  id="city"
-                  name="city"
-                  type="text"
-                  autoComplete="address-level2"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
-
-            <div className="sm:col-span-2">
-              <label htmlFor="region" className="block text-sm font-medium leading-6 text-gray-900">
-                State / Province
-              </label>
-              <div className="mt-2">
-                <input
-                  id="region"
-                  name="region"
-                  type="text"
-                  autoComplete="address-level1"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
-
-            <div className="sm:col-span-2">
-              <label htmlFor="postal-code" className="block text-sm font-medium leading-6 text-gray-900">
-                ZIP / Postal code
-              </label>
-              <div className="mt-2">
-                <input
-                  id="postal-code"
-                  name="postal-code"
-                  type="text"
-                  autoComplete="postal-code"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
+      {/* Personal Information Section */}
+      <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+        {/* First Name */}
+        <div className="sm:col-span-3">
+          <label htmlFor="first-name" className="block text-sm font-medium text-gray-900">
+            First Name
+          </label>
+          <div className="mt-2">
+            <input
+              id="first-name"
+              name="first-name"
+              defaultValue={user.firstName}
+              disabled = {true}
+              type="text"
+              autoComplete="given-name"
+              className="block w-full rounded-lg border border-gray-300 py-3 px-4 text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm"
+            />
           </div>
         </div>
 
+        {/* Last Name */}
+        <div className="sm:col-span-3">
+          <label htmlFor="last-name" className="block text-sm font-medium text-gray-900">
+            Last Name
+          </label>
+          <div className="mt-2">
+            <input
+              id="last-name"
+              name="last-name"
+              defaultValue={user.lastName}
+              disabled = {true}
+              type="text"
+              autoComplete="family-name"
+              className="block w-full rounded-lg border border-gray-300 py-3 px-4 text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm"
+            />
+          </div>
+        </div>
+
+        {/* Email */}
+        <div className="sm:col-span-3">
+          <label htmlFor="email" className="block text-sm font-medium text-gray-900">
+            Email Address
+          </label>
+          <div className="mt-2">
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              className="block w-full rounded-lg border border-gray-300 py-3 px-4 text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm"
+            />
+          </div>
+        </div>
+
+        {/* Password */}
+        <div className="sm:col-span-3">
+          <label htmlFor="password" className="block text-sm font-medium text-gray-900">
+            Password
+          </label>
+          <div className="mt-2">
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="new-password"
+              className="block w-full rounded-lg border border-gray-300 py-3 px-4 text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm"
+            />
+          </div>
+        </div>
+
+        {/* ID Field */}
+        <div className="sm:col-span-3">
+          <label htmlFor="id" className="block text-sm font-medium text-gray-900">
+            ID
+          </label>
+          <div className="mt-2">
+            <input
+              id="id"
+              name="id"
+              defaultValue={user.human_id}
+              disabled = {true}
+              type="text"
+              autoComplete="off"
+              className="block w-full rounded-lg border border-gray-300 py-3 px-4 text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm"
+            />
+          </div>
+        </div>
+
+        {/* Profile Photo */}
+        <div className="col-span-full">
+          <label htmlFor="photo" className="block text-sm font-medium text-gray-900">
+            Profile Photo
+          </label>
+          <div className="mt-2 flex items-center gap-x-3">
+            {/* Uncomment for UserCircleIcon */}
+            {/* <UserCircleIcon aria-hidden="true" className="h-12 w-12 text-gray-300" /> */}
+            <button
+              type="button"
+              className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-900 border border-gray-300 shadow-sm hover:bg-gray-200 focus:outline-none"
+            >
+              Change
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
       <div className="mt-6 flex items-center justify-end gap-x-6">
-        <button type="button" className="text-sm font-semibold leading-6 text-gray-900">
-          Cancel
-        </button>
         <button
           type="submit"
-          className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          className="rounded-lg bg-indigo-600 px-6 py-2 text-sm font-semibold text-white shadow-md hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           Save
         </button>
       </div>
     </form>
-  )
+  );
 }
