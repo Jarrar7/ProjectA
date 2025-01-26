@@ -8,7 +8,6 @@ import ParticipanceTable from "../components/ParticipanceTable.jsx";
 import YearSemesterFilter from "../components/YearSemesterFilter";
 import CalendarComponent from "../components/CalendarComponent";
 import Profile from "../components/Profile";
-import Notifications from "../components/Settings";
 import { useUser } from "../context/UserContext";
 import { supabase } from "../../lib/supabaseClient";
 import withRoleProtection from "../components/hoc/withRoleProtection";
@@ -99,7 +98,7 @@ function StudentDashboard() {
                                 <h2 className="text-2xl font-bold mb-4">Your Courses</h2>
                                 <YearSemesterFilter />
 
-                                <div className="grid grid-cols-3 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                                     {courses.map((course) => (
                                         <div key={course.id} className="bg-white shadow-md rounded-lg p-6">
                                             <button onClick={() => handleCourseClick(course)}>
@@ -123,7 +122,6 @@ function StudentDashboard() {
 
                         {activeSection === "calendar" && <CalendarComponent />}
                         {activeSection === "profile" && <Profile />}
-                        {activeSection === "settings" && <Notifications />}
                     </main>
                 </div>
             </div>

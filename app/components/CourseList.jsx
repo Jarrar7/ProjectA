@@ -45,7 +45,7 @@ export default function CourseList({
                         <p className="text-gray-700 mb-1">Code: {course.course_code}</p>
                         <p className="text-gray-700 mb-1">Year: {course.year}</p>
                         <p className="text-gray-700 mb-4">Semester: {course.semester}</p>
-                        <div className="flex space-x-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                             <button
                                 onClick={() => onSelectCourse(course)}
                                 className="text-blue-500 hover:underline"

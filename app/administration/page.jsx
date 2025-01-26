@@ -1,5 +1,4 @@
 "use client";
-import 'react-calendar/dist/Calendar.css';
 import { useState } from 'react';
 import { useUser } from "../context/UserContext"
 
@@ -10,9 +9,7 @@ import Header from '../components/Header';
 import ManageUsers from '../components/ManageUsers';
 import ManageCourses from '../components/ManageCourses';
 import withRoleProtection from "../components/hoc/withRoleProtection";
-import CalendarComponent from '../components/CalendarComponent';
 import Profile from '../components/Profile';
-import Settings from '../components/Settings';
 
 
 function AdminDashboard() {
@@ -53,23 +50,11 @@ function AdminDashboard() {
                             <ManageCourses />
                         )}
 
-                        {activeSection === 'calendar' && (
-                            <CalendarComponent
-                                events={events}
-                                selectedDate={selectedDate}
-                                onDateChange={handleDateChange}
-                            />
-                        )}
+
 
                         {activeSection === 'profile' && (
                             <div className="flex-1 overflow-auto">
                                 <Profile />
-                            </div>
-                        )}
-
-                        {activeSection === 'settings' && (
-                            <div className="flex-1 overflow-auto">
-                                <Settings />
                             </div>
                         )}
 

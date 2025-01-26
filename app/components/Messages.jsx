@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from "../../lib/supabaseClient"; // Import supabase client
 import MessageSidebar from '../components/Messages/MessageSidebar';
 import MessageListWithDetails from '../components/Messages/MessageListWithDetails';
 import ComposeMessage from '../components/Messages/ComposeMessage';
+import { useUser } from '../context/UserContext';
 
 const MessagesPage = () => {
     const [selectedSection, setSelectedSection] = useState('Inbox');
@@ -91,6 +93,7 @@ const MessagesPage = () => {
         ]);
         setSelectedSection('Sent');
     };
+
     return (
         <div className="flex h-screen bg-gray-50">
             <MessageSidebar

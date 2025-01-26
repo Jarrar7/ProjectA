@@ -1,54 +1,93 @@
 import React, { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { supabase } from "@/lib/supabaseClient";
+import { useUser } from '@/app/context/UserContext';
 
-const ComposeMessage = ({ onSend }) => {
-  const [formData, setFormData] = useState({ to: '', subject: '', body: '' });
+const ComposeMessage = ({ senderId }) => {
+  const [subject, setSubject] = useState('');
+  const [body, setBody] = useState('');
+  const [recipientId, setRecipientId] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { user } = useUser();
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const handleSendClick = async () => {
+    if (!subject || !body || !recipientId) {
+      alert('Please fill in all fields');
+      return;
+    }
 
-  const handleSend = () => {
-    onSend(formData);
-    setFormData({ to: '', subject: '', body: '' });
+    setLoading(true);
+
+    const message = {
+      id: uuidv4(), // Generate a unique ID for the message
+      sender_id: user.id, 
+      receiver_id: recipientId,
+      subject,
+      content: body,
+      timestamp: new Date().toISOString(),
+      read_status: false
+    };
+
+    try {
+      const { error } = await supabase.from('messages').insert([message]);
+      if (error) throw error;
+
+      alert('Message sent successfully!');
+      setSubject('');
+      setBody('');
+      setRecipientId('');
+    } catch (error) {
+      console.error('Error sending message:', error.message);
+      alert('Failed to send the message. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="flex-1 p-4">
-      <h1 className="text-xl font-semibold">Compose New Message</h1>
-      <div className="mt-4">
+    <div className="flex-1 h-full p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+      <h2 className="text-2xl font-semibold text-gray-900 mb-8">Compose Message</h2>
+      <div className="mb-5">
+        <label className="block text-sm font-medium text-gray-600 mb-2">To</label>
         <input
-          name="to"
           type="text"
-          placeholder="To"
-          className="w-full p-2 mb-4 border"
-          value={formData.to}
-          onChange={handleInputChange}
+          value={recipientId}
+          onChange={(e) => setRecipientId(e.target.value)}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          placeholder="Enter recipient's ID"
         />
-        <input
-          name="subject"
-          type="text"
-          placeholder="Subject"
-          className="w-full p-2 mb-4 border"
-          value={formData.subject}
-          onChange={handleInputChange}
-        />
-        <textarea
-          name="body"
-          placeholder="Message"
-          className="w-full p-2 mb-4 border h-32"
-          value={formData.body}
-          onChange={handleInputChange}
-        />
-        <button
-          onClick={handleSend}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Send
-        </button>
       </div>
+      <div className="mb-5">
+        <label className="block text-sm font-medium text-gray-600 mb-2">Subject</label>
+        <input
+          type="text"
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          placeholder="Enter subject"
+        />
+      </div>
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-600 mb-2">Body</label>
+        <textarea
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          rows="6"
+          placeholder="Write your message here"
+        />
+      </div>
+      <button
+        onClick={handleSendClick}
+        disabled={loading}
+        className={`w-full ${loading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'
+          } text-white py-3 rounded-md text-lg transition duration-200`}
+      >
+        {loading ? 'Sending...' : 'Send Message'}
+      </button>
     </div>
   );
 };
 
 export default ComposeMessage;
+
