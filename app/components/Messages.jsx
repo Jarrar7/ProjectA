@@ -91,14 +91,6 @@ const MessagesPage = () => {
         ]);
         setSelectedSection('Sent');
     };
-    const handleSend = (message) => {
-        setSentMessages((prev) => [
-            ...prev,
-            { ...message, id: Date.now(), sender: 'You', date: new Date().toLocaleDateString() },
-        ]);
-        setSelectedSection('Sent');
-    };
-
     return (
         <div className="flex h-screen bg-gray-50">
             <MessageSidebar
