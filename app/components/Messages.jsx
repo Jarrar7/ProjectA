@@ -6,8 +6,6 @@ import ComposeMessage from '../components/Messages/ComposeMessage';
 const MessagesPage = () => {
     const [selectedSection, setSelectedSection] = useState('Inbox');
     const [activeMessage, setActiveMessage] = useState(null);
-    const [selectedSection, setSelectedSection] = useState('Inbox');
-    const [activeMessage, setActiveMessage] = useState(null);
 
     // State to hold messages from Supabase
     const [inboxMessages, setInboxMessages] = useState([]);
