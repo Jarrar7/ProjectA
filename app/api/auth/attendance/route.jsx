@@ -95,7 +95,7 @@ export async function POST(request) {
                         }
                     }
 
-                    if (bestMatch && bestDistance < 0.60) {
+                    if (bestMatch && bestDistance < 0.5) {
                         const { studentId, faceLocation, name } = bestMatch;
                         assignedStudents.add(studentId);
 
@@ -110,7 +110,7 @@ export async function POST(request) {
                         studentNames.push(name); // Add name for this bounding box
 
                         console.log(`Strict Match: Student ${studentId}, Distance: ${bestDistance}`);
-                    } else if (bestMatch && bestDistance >= 0.60 && bestDistance <= 0.65) {
+                    } else if (bestMatch && bestDistance >= 0.5 && bestDistance <= 0.55) {
                         const { studentId, faceLocation, name } = bestMatch;
                         assignedStudents.add(studentId);
 

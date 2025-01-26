@@ -3,10 +3,12 @@ import { supabase } from "../../lib/supabaseClient";
 
 const FileUploadComponent = ({ sessionId, onFilesUploaded }) => {
     const [selectedFiles, setSelectedFiles] = useState([]);
-    const [uploadedFiles, setUploadedFiles] = useState([]); // State to hold already uploaded files
+    const [uploadedFiles, setUploadedFiles] = useState([]);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState("");
-    const [enlargedImage, setEnlargedImage] = useState(null); // State for enlarged image
+    const [enlargedImage, setEnlargedImage] = useState(null);
+
+    const TARGET_SIZE = 1024; // Target dimensions for resizing
 
     // Fetch uploaded images when the component mounts
     useEffect(() => {
@@ -27,13 +29,51 @@ const FileUploadComponent = ({ sessionId, onFilesUploaded }) => {
         fetchUploadedFiles();
     }, [sessionId]);
 
+    // Resize image using a canvas
+    const resizeImage = (file) => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+
+                // Maintain aspect ratio while resizing
+                const scale = Math.min(
+                    TARGET_SIZE / img.width,
+                    TARGET_SIZE / img.height
+                );
+                canvas.width = Math.round(img.width * scale);
+                canvas.height = Math.round(img.height * scale);
+
+                // Draw the resized image onto the canvas
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                // Convert canvas back to a Blob
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        const resizedFile = new File([blob], file.name, {
+                            type: file.type,
+                        });
+                        resolve(resizedFile);
+                    } else {
+                        reject(new Error("Failed to resize image"));
+                    }
+                }, file.type);
+            };
+            img.onerror = () => reject(new Error("Failed to load image"));
+            img.src = URL.createObjectURL(file);
+        });
+    };
+
     // Handle file selection
-    const handleFileChange = (event) => {
+    const handleFileChange = async (event) => {
         const files = Array.from(event.target.files);
 
         // Validate file type and prevent duplicates
         const validFiles = files.filter(
-            (file) => file.type.startsWith("image/") && !selectedFiles.some((f) => f.name === file.name)
+            (file) =>
+                file.type.startsWith("image/") &&
+                !selectedFiles.some((f) => f.name === file.name)
         );
 
         if (validFiles.length + selectedFiles.length > 3) {
@@ -41,8 +81,18 @@ const FileUploadComponent = ({ sessionId, onFilesUploaded }) => {
             return;
         }
 
-        setSelectedFiles((prev) => [...prev, ...validFiles]);
-        setError(""); // Clear any previous error
+        setError("Resizing images... Please wait.");
+        try {
+            // Resize all valid images
+            const resizedFiles = await Promise.all(
+                validFiles.map((file) => resizeImage(file))
+            );
+            setSelectedFiles((prev) => [...prev, ...resizedFiles]);
+            setError(""); // Clear any previous error
+        } catch (resizeError) {
+            console.error("Error resizing images:", resizeError);
+            setError("Failed to resize images. Please try again.");
+        }
     };
 
     // Handle file upload
@@ -109,10 +159,9 @@ const FileUploadComponent = ({ sessionId, onFilesUploaded }) => {
         if (!confirm("Are you sure you want to delete this photo?")) return;
 
         try {
-            // Ensure the file path is sanitized
             const sanitizedFilePath = filePath.startsWith("/") ? filePath.slice(1) : filePath;
 
-            // Delete the file from the Supabase storage bucket
+            // Delete the file from Supabase storage
             const { error: storageError } = await supabase.storage
                 .from("attendance-photos")
                 .remove([sanitizedFilePath]);
@@ -205,7 +254,6 @@ const FileUploadComponent = ({ sessionId, onFilesUploaded }) => {
                 ))}
             </div>
 
-            {/* Modal for Enlarged Image */}
             {enlargedImage && (
                 <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
                     <div className="relative">
