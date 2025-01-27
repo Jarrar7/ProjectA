@@ -1,16 +1,18 @@
 "use client";
 import 'react-calendar/dist/Calendar.css';
-import Messages from '../components/Messages';
 import { useState, useEffect } from "react";
 import SidebarStudentTeacher from "../components/SidebarStudentTeacher";
 import Header from "../components/Header";
-import ParticipanceTable from "../components/ParticipanceTable.jsx";
+import ParticipanceTable from "../components/ParticipanceTable";
 import YearSemesterFilter from "../components/YearSemesterFilter";
+import Messages from "../components/Messages"
 import CalendarComponent from "../components/CalendarComponent";
 import Profile from "../components/Profile";
 import { useUser } from "../context/UserContext";
 import { supabase } from "../../lib/supabaseClient";
 import withRoleProtection from "../components/hoc/withRoleProtection";
+import CourseSearch from "../components/CourseSearch";
+
 
 function StudentDashboard() {
     const [activeSection, setActiveSection] = useState("dashboard");
@@ -18,10 +20,11 @@ function StudentDashboard() {
     const [loading, setLoading] = useState(true);
     const [selectedCourse, setSelectedCourse] = useState(null);
     const { logout, user } = useUser();
+    const [attendanceData, setAttendanceData] = useState([]); // To hold attendance data
+    const [filteredCourses, setFilteredCourses] = useState([]);
 
     // Fetch courses for the logged-in student
     useEffect(() => {
-
         const fetchCourses = async () => {
             if (!user) return;
 
@@ -33,7 +36,6 @@ function StudentDashboard() {
                     .from("enrollments")
                     .select("course_id")
                     .eq("student_id", user.id);
-                //console.log("user's session is: " + JSON.stringify(user.session))
 
                 if (enrollmentsError) {
                     console.error("Error fetching enrollments:", enrollmentsError);
@@ -54,6 +56,7 @@ function StudentDashboard() {
                 }
 
                 setCourses(courses);
+                setFilteredCourses(courses);
             } catch (error) {
                 console.error("Error fetching courses:", error);
             } finally {
@@ -64,16 +67,80 @@ function StudentDashboard() {
         fetchCourses();
     }, [user]);
 
+    // Fetch attendance records for the selected course
+    const fetchAttendanceData = async (courseId) => {
+        console.log("Fetching attendance data for course:", courseId); // Log the start of the function
+
+        try {
+            // Fetch session data for the given courseId
+            const { data: sessionData, error: sessionError } = await supabase
+                .from("class_sessions")
+                .select("id, date, start_time, end_time, room")
+                .eq("course_id", courseId);
+
+            if (sessionError) {
+                console.error("Error fetching class sessions:", sessionError.message);
+                return;
+            }
+
+            // Extract session IDs and other session details
+            const sessionDetails = sessionData.map(session => ({
+                session_id: session.id,
+                date: session.date,
+                start_time: session.start_time,
+                end_time: session.end_time,
+                room: session.room
+            }));
+
+            // Fetch attendance records for the student based on session IDs
+            const { data, error } = await supabase
+                .from("attendance_records")
+                .select("attended_hours, total_hours, session_id, student_id")
+                .eq("student_id", user.id)
+                .in("session_id", sessionDetails.map(session => session.session_id)); // Use the session IDs
+
+            if (error) {
+                console.error("Error fetching attendance data:", error.message);
+                return;
+            }
+
+            // Log the raw data to inspect its structure
+            console.log("Fetched Attendance Data:", data);
+
+            // Combine session details with attendance data
+            const attendanceData = sessionDetails.map(session => {
+                const attendance = data.find(att => att.session_id === session.session_id);
+                return {
+                    ...session,
+                    attended_hours: attendance ? attendance.attended_hours : 0,
+                    total_hours: attendance ? attendance.total_hours : 0
+                };
+            });
+
+            // Set the combined attendance data
+            setAttendanceData(attendanceData);
+        } catch (err) {
+            console.error("Error fetching attendance data:", err);
+        }
+    };
+
     const handleCourseClick = (course) => {
         setSelectedCourse(course);
+        fetchAttendanceData(course.id); // Fetch attendance data when course is clicked
     };
 
     const handleBackClick = () => {
         setSelectedCourse(null);
+        setAttendanceData([]);
     };
 
     if (loading) {
-        return <div className="flex items-center justify-center h-screen">Loading...</div>;
+        return (
+            <div className="loading-container">
+                <div className="spinner"></div>
+                <p>Loading...</p>
+            </div>
+        );
     }
 
     return (
@@ -96,10 +163,12 @@ function StudentDashboard() {
                         {activeSection === "dashboard" && !selectedCourse && (
                             <div>
                                 <h2 className="text-2xl font-bold mb-4">Your Courses</h2>
-                                <YearSemesterFilter />
+
+                                {/* Course search component */}
+                                <CourseSearch courses={courses} setFilteredCourses={setFilteredCourses} />
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                                    {courses.map((course) => (
+                                    {filteredCourses.map((course) => (
                                         <div key={course.id} className="bg-white shadow-md rounded-lg p-6">
                                             <button onClick={() => handleCourseClick(course)}>
                                                 {course.course_name}
@@ -111,7 +180,7 @@ function StudentDashboard() {
                         )}
                         {selectedCourse && (
                             <ParticipanceTable
-                                data={selectedCourse.schedule || []}
+                                data={attendanceData}
                                 onBack={handleBackClick}
                             />
                         )}
