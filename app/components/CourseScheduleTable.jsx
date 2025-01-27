@@ -1,18 +1,38 @@
 "use client";
 import { useState } from "react";
 import FileUploadComponent from "./FileUploadComponent";
+import EditAttendanceModal from "./EditAttendanceModal";
 import { supabase } from "../../lib/supabaseClient";
 
-const CourseScheduleTable = ({ schedule, participants, onBack }) => {
+const CourseScheduleTable = ({ schedule, participants, onBack, selectedCourse }) => {
     const [activeTab, setActiveTab] = useState("schedule");
-    const [showModal, setShowModal] = useState(false);
+    const [showEditAttendanceModal, setShowEditAttendanceModal] = useState(false);
+    const [showFileUploadModal, setShowFileUploadModal] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
+    const [selectedStudent, setSelectedStudent] = useState(null);
     const [uploading, setUploading] = useState(false);
 
+    // Handle attendance editing
+    const handleEditAttendance = (student) => {
+        setSelectedStudent(student);
+        setShowEditAttendanceModal(true);
+    };
+
     // Handle the "Edit" button click for a session
-    const handleEditClickCourse = (entry) => {
-        setSelectedRow(entry);
-        setShowModal(true);
+    const handleEditClickCourse = (row) => {
+        setSelectedRow(row);
+        setShowFileUploadModal(true);
+    };
+
+    // Close modals
+    const closeEditAttendanceModal = () => {
+        setShowEditAttendanceModal(false);
+        setSelectedStudent(null);
+    };
+
+    const closeFileUploadModal = () => {
+        setShowFileUploadModal(false);
+        setSelectedRow(null);
     };
 
     // Save file paths to the `uploaded_images` table in Supabase and update attendance
@@ -55,21 +75,21 @@ const CourseScheduleTable = ({ schedule, participants, onBack }) => {
             alert(error.message || "An error occurred while processing the uploaded files.");
         } finally {
             setUploading(false);
-            setShowModal(false); // Close the modal
+            closeFileUploadModal(); // Close the modal
         }
     };
 
     return (
         <div>
             {/* Back to Courses Button */}
-            {!showModal && (
+            {!showEditAttendanceModal && !showFileUploadModal && (
                 <button onClick={onBack} className="mb-4 text-blue-500">
                     &larr; Back to Courses
                 </button>
             )}
 
             {/* Tab Switcher */}
-            {!showModal && (
+            {!showEditAttendanceModal && !showFileUploadModal && (
                 <div className="mb-4">
                     <button
                         onClick={() => setActiveTab("schedule")}
@@ -89,7 +109,7 @@ const CourseScheduleTable = ({ schedule, participants, onBack }) => {
             )}
 
             {/* Course Schedule Table */}
-            {!showModal && activeTab === "schedule" && (
+            {!showEditAttendanceModal && !showFileUploadModal && activeTab === "schedule" && (
                 <div>
                     <h2 className="text-2xl font-bold mb-4">Course Schedule</h2>
                     <table className="min-w-full bg-white shadow-md rounded-lg">
@@ -131,7 +151,7 @@ const CourseScheduleTable = ({ schedule, participants, onBack }) => {
             )}
 
             {/* Course Participants Table */}
-            {!showModal && activeTab === "participants" && (
+            {!showEditAttendanceModal && !showFileUploadModal && activeTab === "participants" && (
                 <div>
                     <h2 className="text-2xl font-bold mb-4">Course Participants</h2>
                     <table className="min-w-full bg-white shadow-md rounded-lg">
@@ -140,6 +160,7 @@ const CourseScheduleTable = ({ schedule, participants, onBack }) => {
                                 <th className="py-2 px-4 border-b">ID</th>
                                 <th className="py-2 px-4 border-b">Name</th>
                                 <th className="py-2 px-4 border-b">Attendance</th>
+                                <th className="py-2 px-4 border-b">Edit Attendance</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -149,11 +170,19 @@ const CourseScheduleTable = ({ schedule, participants, onBack }) => {
                                         <td className="py-2 px-4 border-b text-center">{participant.human_id}</td>
                                         <td className="py-2 px-4 border-b text-center">{participant.name}</td>
                                         <td className="py-2 px-4 border-b text-center">{participant.attendance}</td>
+                                        <td className="py-2 px-4 border-b text-center">
+                                            <button
+                                                className="btn btn-primary"
+                                                onClick={() => handleEditAttendance(participant)}
+                                            >
+                                                Edit
+                                            </button>
+                                        </td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td className="py-2 px-4 text-center" colSpan="3">
+                                    <td className="py-2 px-4 text-center" colSpan="4">
                                         No participants available
                                     </td>
                                 </tr>
@@ -163,8 +192,17 @@ const CourseScheduleTable = ({ schedule, participants, onBack }) => {
                 </div>
             )}
 
+            {/* Modal for Editing Attendance */}
+            {showEditAttendanceModal && selectedStudent && (
+                <EditAttendanceModal
+                    student={selectedStudent}
+                    courseId={selectedCourse?.id || null}
+                    onClose={closeEditAttendanceModal}
+                />
+            )}
+
             {/* Modal for Uploading Photos */}
-            {showModal && selectedRow && (
+            {showFileUploadModal && selectedRow && (
                 <div className="modal-overlay">
                     <div className="modal">
                         <h2 className="text-2xl font-bold mb-6">Upload Attendance Photos</h2>
@@ -186,7 +224,7 @@ const CourseScheduleTable = ({ schedule, participants, onBack }) => {
                         />
 
                         <button
-                            onClick={() => setShowModal(false)}
+                            onClick={closeFileUploadModal}
                             className="mt-4 text-blue-500"
                             disabled={uploading}
                         >

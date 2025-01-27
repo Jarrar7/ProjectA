@@ -3,90 +3,61 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabaseClient";
 
-// Create the UserContext
 const UserContext = createContext();
 
-// Hook to use the UserContext
-export const useUser = () => {
-    return useContext(UserContext);
-};
+export const useUser = () => useContext(UserContext);
 
-// Provider Component
 export const UserProvider = ({ children }) => {
-    const [user, setUser] = useState(null); // User data
-    const [loading, setLoading] = useState(true); // Loading state
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [loggingOut, setLoggingOut] = useState(false);
     const router = useRouter();
 
-    useEffect(() => {
-        // Function to fetch the user's session and profile
-        const fetchUser = async () => {
-            setLoading(true);
-
-            // Fetch session from Supabase
-            const { data: session, error: sessionError } = await supabase.auth.getSession();
-
+    const fetchUser = async () => {
+        setLoading(true);
+        try {
+            const { data: session } = await supabase.auth.getSession();
             if (session?.session) {
-                // Fetch user profile from `profiles` table
-                const { data: profile, error: profileError } = await supabase
+                const { data: profile } = await supabase
                     .from("profiles")
                     .select("*")
                     .eq("id", session.session.user.id)
                     .single();
-
-                if (profile && !profileError) {
-                    setUser({ ...session.session.user, ...profile });
-                } else {
-                    console.error("Failed to fetch user profile:", profileError);
-                }
-            } else if (sessionError) {
-                console.error("Failed to fetch session:", sessionError);
-            }
-
-            setLoading(false);
-        };
-
-        fetchUser();
-
-        // Listen to authentication state changes
-        const { data: subscription } = supabase.auth.onAuthStateChange(async (event, session) => {
-            console.log("Auth event:", event);
-            console.log("Session data:", session);
-
-
-            if (session) {
-                // User signed in, fetch profile
-                const { data: profile, error } = await supabase
-                    .from("profiles")
-                    .select("*")
-                    .eq("id", session.user.id)
-                    .single();
-
-                if (profile && !error) {
-                    setUser({ ...session.user, ...profile });
-                } else {
-                    console.error("Failed to fetch user profile during auth change:", error);
-                }
-            } else if (event === "SIGNED_OUT") {
-                // User signed out, reset user state
+                setUser({ ...session.session.user, ...profile });
+            } else {
                 setUser(null);
-                router.push("/");
             }
-        });
-
-        // Cleanup listener on unmount
-        return () => {
-            subscription?.unsubscribe?.();
-        };
-    }, [router]);
-
-    // Logout function
-    const logout = async () => {
-        await supabase.auth.signOut();
-        setUser(null);
-        router.push("/");
+        } catch (err) {
+            console.error("Error fetching user:", err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    // Provide context to children
+    useEffect(() => {
+        fetchUser();
+
+        const { subscription } = supabase.auth.onAuthStateChange(() => {
+            fetchUser();
+        });
+
+        return () => subscription?.unsubscribe();
+    }, [router]);
+
+    const logout = async () => {
+        if (loggingOut) return;
+        setLoggingOut(true);
+        try {
+            await supabase.auth.signOut();
+            setUser(null);
+            router.push("/");
+        } catch (err) {
+            console.error("Logout error:", err.message);
+        } finally {
+            setLoggingOut(false);
+        }
+    };
+
     return (
         <UserContext.Provider value={{ user, setUser, loading, logout }}>
             {children}
