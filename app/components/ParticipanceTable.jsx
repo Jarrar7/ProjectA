@@ -1,8 +1,18 @@
-import React, { useState } from 'react';
+import React from "react";
+
+// Function to format date with day of the week in dd/mm/yy format
+const formatDateWithDay = (dateStr) => {
+    const date = new Date(dateStr);
+    const day = date.getDate().toString().padStart(2, '0'); // Ensuring 2-digit day
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Month is 0-indexed
+    const year = date.getFullYear().toString().slice(-2); // Get last 2 digits of the year
+    const weekday = date.toLocaleString('en-US', { weekday: 'short' });
+
+    return `${day}/${month}/${year} ${weekday}`; // Return formatted date
+};
+
 
 const ParticipanceTable = ({ data, onBack }) => {
-    const [activeTab, setActiveTab] = useState('participation');
-
     return (
         <div>
             <button onClick={onBack} className="mb-4 text-blue-500">
@@ -15,31 +25,37 @@ const ParticipanceTable = ({ data, onBack }) => {
                     <thead>
                         <tr>
                             <th className="py-2 px-4 border-b text-center">Date</th>
-                            <th className="py-2 px-4 border-b text-center">Hours of Lecture</th>
+                            <th className="py-2 px-4 border-b text-center">Time</th>
                             <th className="py-2 px-4 border-b text-center">Room</th>
-                            <th className="py-2 px-4 border-b text-center">Participation</th>
+                            <th className="py-2 px-4 border-b text-center">Attended Hours</th>
+                            <th className="py-2 px-4 border-b text-center">Total Hours</th>
                         </tr>
                     </thead>
                     <tbody>
                         {data && data.length > 0 ? (
                             data.map((entry, index) => {
-                                const isAttendedFull = entry.attendedHours === entry.totalHours;
+                                const isAttendedFull = entry.attended_hours === entry.total_hours;
                                 return (
                                     <tr key={index}>
-                                        <td className="py-2 px-4 border-b text-center">{`${entry.date} (${entry.dayOfWeek})`}</td>
-                                        <td className="py-2 px-4 border-b text-center">{entry.hours}</td>
+                                        <td className="py-2 px-4 border-b text-center">
+                                            {formatDateWithDay(entry.date)}
+                                        </td>
+                                        <td className="py-2 px-4 border-b text-center">
+                                            {entry.start_time} - {entry.end_time}
+                                        </td>
                                         <td className="py-2 px-4 border-b text-center">{entry.room}</td>
-                                        <td 
+                                        <td
                                             className={`py-2 px-4 border-b text-center ${isAttendedFull ? 'text-green-500' : 'text-red-500'}`}
                                         >
-                                            {`${entry.attendedHours}/${entry.totalHours}`}
+                                            {entry.attended_hours}
                                         </td>
+                                        <td className="py-2 px-4 border-b text-center">{entry.total_hours}</td>
                                     </tr>
                                 );
                             })
                         ) : (
                             <tr>
-                                <td className="py-2 px-4 text-center" colSpan="4">No participation records available</td>
+                                <td className="py-2 px-4 text-center" colSpan="5">No participation records available</td>
                             </tr>
                         )}
                     </tbody>

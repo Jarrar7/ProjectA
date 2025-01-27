@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -27,8 +28,10 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.5rem
+    --radius: 0.5rem;
   }
+
+  /* Dark mode variables */
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -53,14 +56,54 @@
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%
+    --chart-5: 340 75% 55%;
   }
-}
-@layer base {
+
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Custom loading spinner styles */
+  .loading-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    flex-direction: column;
+    background-color: rgba(255, 255, 255, 0.8);
+    /* Optional: background to make the spinner stand out */
+  }
+
+  .spinner {
+    border: 8px solid #f3f3f3;
+    /* Light gray background */
+    border-top: 8px solid #4f46e5;
+    /* Blue color for the spinning part */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+  }
+
+  /* Spin animation */
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .loading-container p {
+    margin-top: 10px;
+    font-size: 16px;
+    color: #333;
+    font-weight: bold;
   }
 }

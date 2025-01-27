@@ -3,31 +3,50 @@ import { supabase } from "../../lib/supabaseClient";
 
 const FileUploadComponent = ({ sessionId, onFilesUploaded }) => {
     const [selectedFiles, setSelectedFiles] = useState([]);
-    const [uploadedFiles, setUploadedFiles] = useState([]);
+    const [processedFiles, setProcessedFiles] = useState([]);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState("");
     const [enlargedImage, setEnlargedImage] = useState(null);
 
     const TARGET_SIZE = 1024; // Target dimensions for resizing
 
-    // Fetch uploaded images when the component mounts
+    const resetState = () => {
+        setSelectedFiles([]);
+        setProcessedFiles([]);
+        setUploading(false);
+        setError("");
+        setEnlargedImage(null);
+    };
+
+    // Cleanup on unmount
     useEffect(() => {
-        const fetchUploadedFiles = async () => {
-            try {
-                const { data, error } = await supabase
-                    .from("uploaded_images")
-                    .select("*")
-                    .eq("session_id", sessionId);
+        return () => resetState();
+    }, []);
 
-                if (error) throw error;
-                setUploadedFiles(data || []);
-            } catch (fetchError) {
-                console.error("Error fetching uploaded files:", fetchError.message);
+    // Fetch processed files from `processed-attendance-photos`
+    const fetchProcessedFiles = async () => {
+        try {
+            const { data, error } = await supabase.storage
+                .from("processed-attendance-photos")
+                .list(`processed/${sessionId}`, { limit: 100 });
+
+            if (error) {
+                console.error("Error fetching processed files:", error.message);
+                return;
             }
-        };
 
-        fetchUploadedFiles();
-    }, [sessionId]);
+            console.log("Fetched processed files:", data);
+
+            // Map the file paths
+            const processedPaths = data.map((file) => ({
+                name: file.name,
+            }));
+
+            setProcessedFiles(processedPaths || []);
+        } catch (fetchError) {
+            console.error("Error fetching processed files:", fetchError.message);
+        }
+    };
 
     // Resize image using a canvas
     const resizeImage = (file) => {
@@ -37,7 +56,6 @@ const FileUploadComponent = ({ sessionId, onFilesUploaded }) => {
                 const canvas = document.createElement("canvas");
                 const ctx = canvas.getContext("2d");
 
-                // Maintain aspect ratio while resizing
                 const scale = Math.min(
                     TARGET_SIZE / img.width,
                     TARGET_SIZE / img.height
@@ -45,10 +63,8 @@ const FileUploadComponent = ({ sessionId, onFilesUploaded }) => {
                 canvas.width = Math.round(img.width * scale);
                 canvas.height = Math.round(img.height * scale);
 
-                // Draw the resized image onto the canvas
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-                // Convert canvas back to a Blob
                 canvas.toBlob((blob) => {
                     if (blob) {
                         const resizedFile = new File([blob], file.name, {
@@ -69,7 +85,6 @@ const FileUploadComponent = ({ sessionId, onFilesUploaded }) => {
     const handleFileChange = async (event) => {
         const files = Array.from(event.target.files);
 
-        // Validate file type and prevent duplicates
         const validFiles = files.filter(
             (file) =>
                 file.type.startsWith("image/") &&
@@ -83,12 +98,11 @@ const FileUploadComponent = ({ sessionId, onFilesUploaded }) => {
 
         setError("Resizing images... Please wait.");
         try {
-            // Resize all valid images
             const resizedFiles = await Promise.all(
                 validFiles.map((file) => resizeImage(file))
             );
             setSelectedFiles((prev) => [...prev, ...resizedFiles]);
-            setError(""); // Clear any previous error
+            setError("");
         } catch (resizeError) {
             console.error("Error resizing images:", resizeError);
             setError("Failed to resize images. Please try again.");
@@ -116,19 +130,14 @@ const FileUploadComponent = ({ sessionId, onFilesUploaded }) => {
                     throw error;
                 }
 
-                uploadedPaths.push(data.path); // Collect uploaded file paths
+                uploadedPaths.push(data.path);
             }
 
-            // Save uploaded file paths to the database
             await onFilesUploaded(uploadedPaths);
 
-            // Clear state and refresh uploaded files
             setSelectedFiles([]);
             setError("");
-            setUploadedFiles((prev) => [
-                ...prev,
-                ...uploadedPaths.map((path) => ({ file_path: path })),
-            ]);
+            await fetchProcessedFiles(); // Fetch processed photos after upload
         } catch (uploadError) {
             console.error("Error uploading files:", uploadError.message);
             setError("Failed to upload files. Please try again.");
@@ -145,7 +154,7 @@ const FileUploadComponent = ({ sessionId, onFilesUploaded }) => {
     // Open modal for enlarged image
     const handleImageClick = (filePath) => {
         setEnlargedImage(
-            `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/attendance-photos/${filePath}`
+            `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/processed-attendance-photos/processed/${sessionId}/${filePath}`
         );
     };
 
@@ -154,40 +163,10 @@ const FileUploadComponent = ({ sessionId, onFilesUploaded }) => {
         setEnlargedImage(null);
     };
 
-    // Handle delete photo
-    const handleDeletePhoto = async (imageId, filePath) => {
-        if (!confirm("Are you sure you want to delete this photo?")) return;
-
-        try {
-            const sanitizedFilePath = filePath.startsWith("/") ? filePath.slice(1) : filePath;
-
-            // Delete the file from Supabase storage
-            const { error: storageError } = await supabase.storage
-                .from("attendance-photos")
-                .remove([sanitizedFilePath]);
-
-            if (storageError) {
-                throw new Error("Failed to delete the photo from storage.");
-            }
-
-            // Delete the record from the uploaded_images table
-            const { error: dbError } = await supabase
-                .from("uploaded_images")
-                .delete()
-                .eq("id", imageId);
-
-            if (dbError) {
-                throw new Error("Failed to delete the photo record from the database.");
-            }
-
-            // Remove the photo from the UI
-            setUploadedFiles((prev) => prev.filter((file) => file.id !== imageId));
-            alert("Photo deleted successfully!");
-        } catch (err) {
-            console.error("Error deleting photo:", err.message);
-            setError(err.message);
-        }
-    };
+    // Fetch processed files on component mount
+    useEffect(() => {
+        fetchProcessedFiles();
+    }, [sessionId]);
 
     return (
         <div>
@@ -231,27 +210,28 @@ const FileUploadComponent = ({ sessionId, onFilesUploaded }) => {
                 {uploading ? "Uploading..." : "Upload"}
             </button>
 
-            <h3 className="text-lg font-bold mt-6">Uploaded Files</h3>
+            <h3 className="text-lg font-bold mt-6">Processed Attendance Photos</h3>
             <div className="flex flex-wrap">
-                {uploadedFiles.map((file, index) => (
-                    <div
-                        key={index}
-                        className="mr-4 mb-4 cursor-pointer"
-                        onClick={() => handleImageClick(file.file_path)}
-                    >
-                        <img
-                            src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/attendance-photos/${file.file_path}`}
-                            alt={`Uploaded File ${index + 1}`}
-                            className="w-16 h-16 object-cover rounded"
-                        />
-                        <button
-                            onClick={() => handleDeletePhoto(file.id, file.file_path)}
-                            className="text-red-500"
+                {processedFiles.length > 0 ? (
+                    processedFiles.map((file, index) => (
+                        <div
+                            key={index}
+                            className="mr-4 mb-4 cursor-pointer"
+                            onClick={() =>
+                                handleImageClick(file.name)
+                            }
                         >
-                            Delete
-                        </button>
-                    </div>
-                ))}
+                            <img
+                                src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/processed-attendance-photos/processed/${sessionId}/${file.name}`}
+                                alt={`Processed File ${index + 1}`}
+                                className="w-16 h-16 object-cover rounded"
+                            />
+                            <p className="text-center text-sm">Photo {index + 1}</p>
+                        </div>
+                    ))
+                ) : (
+                    <p className="text-gray-500">No processed photos available yet.</p>
+                )}
             </div>
 
             {enlargedImage && (

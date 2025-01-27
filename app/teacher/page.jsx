@@ -1,33 +1,32 @@
 "use client";
-import 'react-calendar/dist/Calendar.css';
+import "react-calendar/dist/Calendar.css";
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabaseClient";
 
-import SidebarStudentTeacher from '../components/SidebarStudentTeacher';
-import Header from '../components/Header';
+import SidebarStudentTeacher from "../components/SidebarStudentTeacher";
+import Header from "../components/Header";
 
-import CourseScheduleTable from '../components/CourseScheduleTable';
-import YearSemesterFilter from '../components/YearSemesterFilter';
-
-import Messages from '../components/Messages';
-import CalendarComponent from '../components/CalendarComponent';
-import Profile from '../components/Profile';
+import CourseScheduleTable from "../components/CourseScheduleTable";
+import CourseSearch from "../components/CourseSearch";
+import Messages from "../components/Messages";
+import CalendarComponent from "../components/CalendarComponent";
+import Profile from "../components/Profile";
 import { useUser } from "../context/UserContext";
 import withRoleProtection from "../components/hoc/withRoleProtection";
 
 function TeacherDashboard() {
-    const [activeSection, setActiveSection] = useState('dashboard');
-    const { logout, user } = useUser();
+    const [activeSection, setActiveSection] = useState("dashboard");
+    const { logout, loading, user } = useUser();
     const [items, setItems] = useState([]); // Dynamically fetched courses
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [courseSchedule, setCourseSchedule] = useState([]);
     const [courseParticipants, setParticipants] = useState([]);
+    const [filteredCourses, setFilteredCourses] = useState([]); // State for filtered courses
 
     useEffect(() => {
-        // Fetch teacher's courses on component mount
-        const fetchCourses = async () => {
-            if (!user) return;
+        if (!user || loading) return;
 
+        const fetchCourses = async () => {
             try {
                 const { data: courses, error } = await supabase
                     .from("courses")
@@ -36,23 +35,23 @@ function TeacherDashboard() {
 
                 if (error) {
                     console.error("Error fetching courses:", error.message);
-                    return;
+                    setItems([]);
+                } else {
+                    setItems(courses || []);
+                    setFilteredCourses(courses || []);
                 }
-
-                setItems(courses);
             } catch (err) {
                 console.error("Error fetching courses:", err);
             }
         };
 
         fetchCourses();
-    }, [user]);
+    }, [user, loading]);
 
     const handleCourseClick = async (course) => {
         setSelectedCourse(course);
 
         try {
-            // Fetch course schedule
             const { data: schedule, error: scheduleError } = await supabase
                 .from("class_sessions")
                 .select("*")
@@ -65,16 +64,10 @@ function TeacherDashboard() {
 
             setCourseSchedule(schedule);
 
-
-
-
-            // Fetch course participants with attendance data
             const { data: participants, error: participantsError } = await supabase.rpc(
-                'fetch_participant_attendance', // Use a Supabase function for the SQL
-                { course_uuid: course.id } // Pass the course ID
+                "fetch_participant_attendance",
+                { course_uuid: course.id }
             );
-
-
 
             if (participantsError) {
                 console.error("Error fetching participants:", participantsError.message);
@@ -94,72 +87,76 @@ function TeacherDashboard() {
         }
     };
 
-
-
-
     const handleBackClick = () => {
         setSelectedCourse(null);
         setCourseSchedule([]);
         setParticipants([]);
     };
 
+    const handleSectionChange = (section) => {
+        setActiveSection(section);
+
+        if (section !== "dashboard") {
+            setSelectedCourse(null);
+        }
+    };
+
     return (
-        <main>
-            <div className="flex h-screen">
-                {/* Sidebar */}
-                <SidebarStudentTeacher
-                    activeSection={activeSection}
-                    setActiveSection={setActiveSection}
-                    logout={logout}
-                />
+        <div className="flex h-screen">
+            {/* Sidebar */}
+            <SidebarStudentTeacher
+                activeSection={activeSection}
+                setActiveSection={handleSectionChange}
+                logout={logout}
+            />
 
-                {/* Main Content */}
-                <div className="flex-1 flex flex-col">
-                    {/* Header */}
-                    <Header />
+            {/* Main Content */}
+            <div className="flex-1 flex flex-col min-h-screen">
+                {/* Header */}
+                <Header />
 
-                    {/* Content Area */}
-                    <main className="flex-1 bg-gray-100 p-6 overflow-auto">
-                        {/* Conditionally render the grid based on dashboard selection */}
-                        {activeSection === 'dashboard' && !selectedCourse && (
-                            <div>
-                                <h2 className="text-2xl font-bold mb-4">Your Courses</h2>
-                                <YearSemesterFilter />
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                                    {items.map((course) => (
-                                        <div key={course.id} className="bg-white shadow-md rounded-lg p-6">
-                                            <button onClick={() => handleCourseClick(course)}>
-                                                {course.course_name}
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
+                {/* Content Area */}
+                <div className="flex-1 bg-gray-100 p-6 overflow-auto">
+                    {activeSection === "dashboard" && !selectedCourse && (
+                        <div>
+                            <h2 className="text-2xl font-bold mb-4">Your Courses</h2>
+
+                            {/* Course search */}
+                            <CourseSearch courses={items} setFilteredCourses={setFilteredCourses} />
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                                {filteredCourses.map((course) => (
+                                    <div key={course.id} className="bg-white shadow-md rounded-lg p-6">
+                                        <button onClick={() => handleCourseClick(course)}>
+                                            {course.course_name}
+                                        </button>
+                                    </div>
+                                ))}
                             </div>
-                        )}
-                        {selectedCourse && (
-                            <CourseScheduleTable
-                                schedule={courseSchedule}
-                                participants={courseParticipants}
-                                onBack={handleBackClick}
-                            />
-                        )}
+                        </div>
+                    )}
 
-                        {activeSection === 'messages' && (
-                            <Messages />
-                        )}
+                    {selectedCourse && (
+                        <CourseScheduleTable
+                            schedule={courseSchedule}
+                            participants={courseParticipants}
+                            onBack={handleBackClick}
+                            selectedCourse={selectedCourse}
+                        />
+                    )}
 
-                        {activeSection === 'calendar' && (
-                            <CalendarComponent />
-                        )}
-                        {activeSection === 'profile' && (
-                            <div className="flex-1 overflow-auto">
-                                <Profile />
-                            </div>
-                        )}
-                    </main>
+                    {activeSection === "messages" && <Messages />}
+
+                    {activeSection === "calendar" && <CalendarComponent />}
+
+                    {activeSection === "profile" && (
+                        <div className="flex-1 overflow-auto">
+                            <Profile />
+                        </div>
+                    )}
                 </div>
             </div>
-        </main>
+        </div>
     );
 }
 

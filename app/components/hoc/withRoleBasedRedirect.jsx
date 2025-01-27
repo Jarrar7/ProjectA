@@ -30,7 +30,12 @@ const withRoleBasedRedirect = (Component) => {
 
 
         if (loading) {
-            return <div>Loading...</div>; // Show loading spinner or placeholder
+            return (
+                <div className="loading-container">
+                    <div className="spinner"></div>
+                    <p>Loading...</p>
+                </div>
+            );
         }
 
         return user ? null : <Component {...props} />;
