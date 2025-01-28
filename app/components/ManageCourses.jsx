@@ -305,6 +305,7 @@ export default function ManageCourses() {
                     onBack={handleBack}
                     onAddStudent={handleAddStudent}
                     onRemoveStudent={handleRemoveStudent}
+                    onUpdateEnrolledStudents={setEnrolledStudents}
 
                 />
             )}

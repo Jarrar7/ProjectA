@@ -27,7 +27,7 @@ const EditableParticipanceTable = ({ data, onSave, onCancel }) => {
                     {updatedData.length > 0 ? (
                         updatedData.map((record, index) => (
                             <tr key={index}>
-                                <td className="py-2 px-4 border-b text-center">{`${record.date} ${record.day}`}</td>
+                                <td className="py-2 px-4 border-b text-center">{`${record.date}`}</td>
                                 <td className="py-2 px-4 border-b text-center">
                                     {`${record.start_time} - ${record.end_time}`}
                                 </td>

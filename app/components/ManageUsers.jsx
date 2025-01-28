@@ -159,155 +159,125 @@ export default function ManageUsers() {
 
 
     return (
-        <div className="min-h-screen bg-gray-100 py-10 px-4 flex items-center justify-center">
-            <div className="w-full max-w-4xl bg-white rounded-lg shadow-md p-6 space-y-8">
-                <h1 className="text-2xl font-bold text-gray-800 text-center">Manage Users</h1>
+        <div className="min-h-screen bg-gray-100 py-10 px-6 flex items-center justify-center">
+            <div className="w-full max-w-5xl bg-white rounded-lg shadow-md p-8 space-y-8">
+                {/* Page Title */}
+                <h1 className="text-3xl font-bold text-gray-900">Manage Users</h1>
 
-                {/* Individual Signup */}
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <h2 className="text-lg font-semibold text-gray-700">Sign Up Individual User</h2>
-                    <div className="grid grid-cols-2 gap-6">
+                {/* Individual Signup Section */}
+                <div className="border border-gray-300 rounded-lg p-6 bg-gray-50">
+                    <h2 className="text-lg font-semibold text-gray-700 mb-4">Sign Up Individual User</h2>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="grid grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">First Name</label>
+                                <input
+                                    type="text"
+                                    value={firstName}
+                                    onChange={(e) => setFirstName(e.target.value)}
+                                    required
+                                    className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Last Name</label>
+                                <input
+                                    type="text"
+                                    value={lastName}
+                                    onChange={(e) => setLastName(e.target.value)}
+                                    required
+                                    className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Human ID</label>
+                                <input
+                                    type="text"
+                                    value={human_id}
+                                    onChange={(e) => setHumanID(e.target.value)}
+                                    required
+                                    className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Role</label>
+                                <input
+                                    type="text"
+                                    value={role}
+                                    onChange={(e) => setRole(e.target.value)}
+                                    required
+                                    className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                />
+                            </div>
+                        </div>
                         <div>
-                            <label htmlFor="firstname" className="block text-sm font-medium text-gray-700">
-                                First Name
-                            </label>
+                            <label className="block text-sm font-medium text-gray-700">Email</label>
                             <input
-                                id="firstname"
-                                name="firstname"
-                                type="text"
-                                value={firstName}
-                                onChange={(e) => setFirstName(e.target.value)}
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                                 required
-                                className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                             />
                         </div>
                         <div>
-                            <label htmlFor="lastname" className="block text-sm font-medium text-gray-700">
-                                Last Name
-                            </label>
+                            <label className="block text-sm font-medium text-gray-700">Password</label>
                             <input
-                                id="lastname"
-                                name="lastname"
-                                type="text"
-                                value={lastName}
-                                onChange={(e) => setLastName(e.target.value)}
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
                                 required
-                                className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                             />
                         </div>
+
+                        {/* Upload Photo */}
                         <div>
-                            <label htmlFor="human_id" className="block text-sm font-medium text-gray-700">
-                                Human ID
-                            </label>
+                            <label className="block text-sm font-medium text-gray-700">Upload Photo</label>
                             <input
-                                id="human_id"
-                                name="human_id"
-                                type="text"
-                                value={human_id}
-                                onChange={(e) => setHumanID(e.target.value)}
-                                required
-                                className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setPhotoFile(e.target.files[0])}
+                                className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                             />
                         </div>
+
                         <div>
-                            <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                                Role
-                            </label>
-                            <input
-                                id="role"
-                                name="role"
-                                type="text"
-                                value={role}
-                                onChange={(e) => setRole(e.target.value)}
-                                required
-                                className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                            />
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className={`w-full rounded-md py-2 px-4 text-white shadow-sm transition ${loading
+                                    ? "bg-gray-400"
+                                    : "bg-indigo-600 hover:bg-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                    }`}
+                            >
+                                {loading ? "Creating User..." : "Create User"}
+                            </button>
                         </div>
-                    </div>
-                    <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                            Email
-                        </label>
-                        <input
-                            id="email"
-                            name="email"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                            Password
-                        </label>
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                        />
-                    </div>
+                    </form>
+                </div>
 
-                    {/* Photo Upload */}
+                {/* Bulk Signup Section */}
+                <div className="border border-gray-300 rounded-lg p-6 bg-gray-50">
+                    <h2 className="text-lg font-semibold text-gray-700 mb-4">Bulk Signup</h2>
                     <div>
-                        <label htmlFor="photo-upload" className="block text-sm font-medium text-gray-700">
-                            Upload Photo
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700">Upload Excel File</label>
                         <input
-                            id="photo-upload"
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => setPhotoFile(e.target.files[0])}
-                            className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                        />
-                    </div>
-
-                    <div>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className={`w-full rounded-md ${loading ? "bg-gray-400" : "bg-indigo-600 hover:bg-indigo-500"
-                                } py-2 px-4 text-white shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
-                        >
-                            {loading ? "Creating User..." : "Create User"}
-                        </button>
-                    </div>
-                </form>
-
-                {/* Bulk Signup */}
-                <div>
-                    <h2 className="text-lg font-semibold text-gray-700">Bulk Signup</h2>
-                    <div>
-                        <label htmlFor="file-upload" className="block text-sm font-medium text-gray-700">
-                            Upload Excel File
-                        </label>
-                        <input
-                            id="file-upload"
-                            name="file-upload"
                             type="file"
                             accept=".xlsx, .xls"
                             onChange={handleFileUpload}
-                            className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
                     </div>
 
-                    {/*ZIP Upload Field */}
+                    {/* ZIP Upload Field */}
                     <div className="mt-4">
-                        <label htmlFor="zip-upload" className="block text-sm font-medium text-gray-700">
-                            Upload Photos (ZIP File)
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700">Upload Photos (ZIP File)</label>
                         <input
-                            id="zip-upload"
-                            name="zip-upload"
                             type="file"
                             accept=".zip"
-                            onChange={(e) => setZipFile(e.target.files[0])} // State to store ZIP file
-                            className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            onChange={(e) => setZipFile(e.target.files[0])}
+                            className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
                     </div>
 
@@ -323,7 +293,9 @@ export default function ManageUsers() {
                         </div>
                     )}
                 </div>
+
             </div>
         </div>
     );
+
 }

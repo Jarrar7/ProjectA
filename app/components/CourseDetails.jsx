@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
+import CsvUploader from "./CsvUploader";
 
 export default function CourseDetails({
     selectedCourse,
@@ -7,7 +8,8 @@ export default function CourseDetails({
     teacher,
     onBack,
     onAddStudent, // Handler passed from ManageCourses
-    onRemoveStudent
+    onRemoveStudent,
+    onUpdateEnrolledStudents
 }) {
     const [studentId, setStudentId] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -73,12 +75,12 @@ export default function CourseDetails({
     const handleAddSession = async () => {
         setErrorMessageSession("");
         setSuccessMessageSession("");
-    
+
         if (!newSession.date || !newSession.start_time || !newSession.end_time || !newSession.room) {
             setErrorMessageSession("Please fill in all the fields.");
             return;
         }
-    
+
         try {
             // Insert the new session into the database
             const { data, error } = await supabase.from("class_sessions").insert([
@@ -90,7 +92,7 @@ export default function CourseDetails({
                     room: newSession.room,
                 },
             ]);
-    
+
             if (error) {
                 setErrorMessageSession(error.message || "Error adding session.");
             } else {
@@ -99,7 +101,7 @@ export default function CourseDetails({
                     .from("class_sessions")
                     .select("*")
                     .eq("course_id", selectedCourse.id);
-    
+
                 if (fetchError) {
                     setErrorMessageSession(fetchError.message || "Error fetching updated sessions.");
                 } else {
@@ -276,6 +278,16 @@ export default function CourseDetails({
 
             <div className="border-t-4 border-gray-300 pt-6 mb-5 mt-5"></div>
 
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">Bulk Add Students</h3>
+
+            {/* CSV Upload Component */}
+            <CsvUploader
+                courseId={selectedCourse.id}
+                onStudentsAdded={(newStudents) => {
+                    onUpdateEnrolledStudents([...enrolledStudents, ...newStudents]); // Notify parent of the update
+                }}
+            />
+
             <h3 className="text-xl font-semibold text-gray-800 mt-6 mb-2">Add Student</h3>
             <div className="flex items-center gap-4 mt-2">
                 <input
@@ -291,6 +303,7 @@ export default function CourseDetails({
                 >
                     Add Student
                 </button>
+
             </div>
             {errorMessage && <p className="text-red-500 mt-2">{errorMessage}</p>}
             {successMessage && <p className="text-green-500 mt-2">{successMessage}</p>}
