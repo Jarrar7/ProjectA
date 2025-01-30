@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "./context/UserContext"; // Import UserContext
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { supabase } from "../lib/supabaseClient";
 
 export default function LoginPage() {
@@ -64,7 +62,6 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-gray-50">
-      <ToastContainer />
       <div className="w-full max-w-md px-6 py-8 bg-white shadow-md rounded-lg">
         <div className="text-center">
           <svg
