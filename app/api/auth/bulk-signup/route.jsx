@@ -4,6 +4,9 @@ import JSZip from "jszip";
 import FormData from "form-data"; // For sending form-data
 import axios from "axios"; // For calling the Python face encoding service
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+
 export async function POST(request) {
     try {
         const formData = await request.formData();
@@ -66,7 +69,7 @@ export async function POST(request) {
                 const formData = new FormData();
                 formData.append("image", fileContent, { filename: entryName });
 
-                const response = await axios.post("http://127.0.0.1:5001/encode", formData, {
+                const response = await axios.post(`${API_URL}/encode`, formData, {
                     headers: formData.getHeaders(),
                 });
 
