@@ -1,9 +1,47 @@
 "use client";
 
-import { useUser } from "../context/UserContext"; 
+import { useEffect, useState } from "react";
+import { useUser } from "../context/UserContext";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function ProfileForm() {
   const { user, loading } = useUser(); // Access `user` and `loading` from UserContext
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleUpdatePassword = async (e) => {
+    e.preventDefault(); // Prevent form submission from reloading the page
+  
+    if (!password) {
+      alert("Please enter a new password.");
+      return;
+    }
+  
+    const { error } = await supabase.auth.updateUser({ password });
+  
+    if (error) {
+      console.error("Error updating password:", error.message);
+      alert("Failed to update password: " + error.message);
+    } else {
+      alert("Password updated successfully!");
+      setPassword(""); // Clear the input field after successful update
+    }
+  };
+  
+
+  useEffect(() => {
+    const fetchUserEmail = async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (error) {
+        console.error("Error fetching user:", error.message);
+      } else if (data?.user) {
+        setEmail(data.user.email);
+      }
+    };
+
+    fetchUserEmail();
+  }, []);
+
 
   if (loading) {
     return (
@@ -43,7 +81,7 @@ export default function ProfileForm() {
               id="first-name"
               name="first-name"
               defaultValue={user.firstName}
-              disabled = {true}
+              disabled={true}
               type="text"
               autoComplete="given-name"
               className="block w-full rounded-lg border border-gray-300 py-3 px-4 text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm"
@@ -61,7 +99,7 @@ export default function ProfileForm() {
               id="last-name"
               name="last-name"
               defaultValue={user.lastName}
-              disabled = {true}
+              disabled={true}
               type="text"
               autoComplete="family-name"
               className="block w-full rounded-lg border border-gray-300 py-3 px-4 text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm"
@@ -79,7 +117,8 @@ export default function ProfileForm() {
               id="email"
               name="email"
               type="email"
-              autoComplete="email"
+              value={email}
+              disabled={true}
               className="block w-full rounded-lg border border-gray-300 py-3 px-4 text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm"
             />
           </div>
@@ -96,6 +135,8 @@ export default function ProfileForm() {
               name="password"
               type="password"
               autoComplete="new-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="block w-full rounded-lg border border-gray-300 py-3 px-4 text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm"
             />
           </div>
@@ -111,7 +152,7 @@ export default function ProfileForm() {
               id="id"
               name="id"
               defaultValue={user.human_id}
-              disabled = {true}
+              disabled={true}
               type="text"
               autoComplete="off"
               className="block w-full rounded-lg border border-gray-300 py-3 px-4 text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm"
@@ -125,8 +166,6 @@ export default function ProfileForm() {
             Profile Photo
           </label>
           <div className="mt-2 flex items-center gap-x-3">
-            {/* Uncomment for UserCircleIcon */}
-            {/* <UserCircleIcon aria-hidden="true" className="h-12 w-12 text-gray-300" /> */}
             <button
               type="button"
               className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-900 border border-gray-300 shadow-sm hover:bg-gray-200 focus:outline-none"
@@ -141,6 +180,7 @@ export default function ProfileForm() {
       <div className="mt-6 flex items-center justify-end gap-x-6">
         <button
           type="submit"
+          onClick={handleUpdatePassword}
           className="rounded-lg bg-indigo-600 px-6 py-2 text-sm font-semibold text-white shadow-md hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           Save
