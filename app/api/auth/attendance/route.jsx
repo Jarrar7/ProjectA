@@ -3,9 +3,13 @@ import axios from "axios";
 import FormData from "form-data";
 import { NextResponse } from "next/server";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export async function POST(request) {
     try {
         const { session_id, photo_urls } = await request.json();
+
+
 
         if (!session_id || !photo_urls || photo_urls.length === 0) {
             console.error("Invalid input: session_id or photo_urls missing.");
@@ -54,7 +58,7 @@ export async function POST(request) {
                 const formData = new FormData();
                 formData.append("image", photoBuffer, { filename: "photo.jpg" });
 
-                const response = await axios.post("http://127.0.0.1:5001/encode", formData, {
+                const response = await axios.post(`${API_URL}/encode`, formData, {
                     headers: formData.getHeaders(),
                 });
 
@@ -149,7 +153,7 @@ export async function POST(request) {
                 drawFormData.append("names", JSON.stringify(studentNames)); // Add names
 
                 try {
-                    const drawResponse = await axios.post("http://127.0.0.1:5001/draw", drawFormData, {
+                    const drawResponse = await axios.post(`${API_URL}/draw`, drawFormData, {
                         headers: drawFormData.getHeaders(),
                         responseType: "arraybuffer",
                     });

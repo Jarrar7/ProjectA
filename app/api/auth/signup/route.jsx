@@ -4,6 +4,9 @@ import { supabaseService } from "../../../../lib/supabaseServiceClient";
 import FormData from "form-data"; // Required for sending form-data
 import axios from "axios"; // For making the request to the Python service
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+
 export async function POST(request) {
     const { firstName, lastName, human_id, role, email, password, photo_url } = await request.json();
 
@@ -46,7 +49,7 @@ export async function POST(request) {
             const formData = new FormData();
             formData.append("image", photoBuffer, { filename: "photo.jpg" }); // Add photo buffer as form-data
 
-            const response = await axios.post("http://127.0.0.1:5001/encode", formData, {
+            const response = await axios.post(`${API_URL}/encode`, formData, {
                 headers: formData.getHeaders(),
             });
 
