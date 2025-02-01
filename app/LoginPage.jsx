@@ -1,17 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "./context/UserContext"; // Import UserContext
+import { useUser } from "./context/UserContext";
 import { supabase } from "../lib/supabaseClient";
 import { toast } from "react-toastify";
+import { FaMoon, FaSun } from "react-icons/fa";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const { setUser } = useUser(); // Access the `setUser` function from UserContext
+  const { setUser } = useUser();
   const router = useRouter();
+  const [theme, setTheme] = useState("light");
+
+  // Load Theme from LocalStorage on First Render
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") || "light";
+    setTheme(savedTheme);
+    document.documentElement.classList.add(savedTheme);
+  }, []);
+
+  // Toggle Theme Mode
+  const toggleTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(newTheme);
+  };
 
   const notify = (message, type = "info") => {
     if (type === "success") {
@@ -27,7 +46,6 @@ export default function LoginPage() {
     e.preventDefault();
 
     try {
-      // Authenticate the user and retrieve session and user data
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -38,21 +56,19 @@ export default function LoginPage() {
         notify("Invalid email or password", "error");
         return;
       }
-      const user = authData.user
 
+      const user = authData.user;
       const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
         .single();
 
       if (profileError || !profileData) {
-        console.error('Profile Fetch Error:', profileError);
-        notify("Error in fetching profile")
+        console.error("Profile Fetch Error:", profileError);
+        notify("Error in fetching profile");
       }
 
-
-      // Set the user and session data in context
       setUser(profileData);
       notify("Login successful!", "success");
     } catch (err) {
@@ -62,8 +78,16 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 dark:text-white">
-      <div className="w-full max-w-md px-6 py-8 bg-white dark:bg-gray-800 shadow-md rounded-lg">
+    <main className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 dark:text-white transition-all">
+      {/* Dark Mode Toggle Button */}
+      <button
+        onClick={toggleTheme}
+        className="absolute top-4 right-6 p-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white transition"
+      >
+        {theme === "light" ? <FaMoon size={20} /> : <FaSun size={20} />}
+      </button>
+
+      <div className="w-full max-w-md px-6 py-8 bg-white dark:bg-gray-800 shadow-md rounded-lg transition-all">
         <div className="text-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -83,53 +107,46 @@ export default function LoginPage() {
             Login to Your Account
           </h2>
         </div>
+
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && <p className="text-red-500">{error}</p>}
+
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-300"
-            >
+            <label htmlFor="email" className="block text-sm font-medium text-gray-900 dark:text-gray-300">
               Email address
             </label>
             <div className="mt-2">
               <input
                 id="email"
-                name="email"
                 type="email"
                 required
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="block w-full rounded-md border-gray-300 dark:border-gray-600 py-2 px-3 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                className="block w-full rounded-md border-gray-300 dark:border-gray-600 py-2 px-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               />
             </div>
           </div>
+
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-300"
-            >
+            <label htmlFor="password" className="block text-sm font-medium text-gray-900 dark:text-gray-300">
               Password
             </label>
             <div className="mt-2">
               <input
                 id="password"
-                name="password"
                 type="password"
                 required
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full rounded-md border-gray-300 dark:border-gray-600 py-2 px-3 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                className="block w-full rounded-md border-gray-300 dark:border-gray-600 py-2 px-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               />
             </div>
           </div>
+
           <div>
-            <button
-              type="submit"
-              className="flex w-full justify-center rounded-md bg-indigo-600 dark:bg-indigo-500 py-2 px-4 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 dark:hover:bg-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            >
+            <button type="submit" className="flex w-full justify-center rounded-md bg-indigo-600 dark:bg-indigo-500 py-2 px-4 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 dark:hover:bg-indigo-400">
               Login
             </button>
           </div>
@@ -137,5 +154,4 @@ export default function LoginPage() {
       </div>
     </main>
   );
-
 }
