@@ -4,7 +4,7 @@ import { supabase } from "../../lib/supabaseClient";
 import { useUser } from "../context/UserContext";
 import { FaBars, FaMoon, FaSun } from "react-icons/fa";
 
-export default function Header({ toggleSidebar }) {
+export default function Header() {
     const { user, loading } = useUser();
     const [photoUrl, setPhotoUrl] = useState("");
     const [theme, setTheme] = useState("light");
@@ -52,16 +52,8 @@ export default function Header({ toggleSidebar }) {
     };
 
     return (
-        <header className="h-16 bg-white dark:bg-gray-800 flex items-center justify-between px-6 shadow">
-            {/*  Hamburger Menu (Mobile Only) */}
-            <button
-                onClick={toggleSidebar}
-                className="md:hidden text-gray-600 dark:text-white"
-            >
-                <FaBars size={24} />
-            </button>
-
-            {/*  User Profile */}
+        <header className="h-16 bg-white dark:bg-gray-800 flex items-center justify-center md:justify-between px-6 shadow">
+            {/* User Profile (Centered on Mobile, Left on Desktop) */}
             <div className="flex items-center space-x-2">
                 {loading ? (
                     <div className="loading-container">
@@ -82,14 +74,15 @@ export default function Header({ toggleSidebar }) {
                 )}
             </div>
 
-            {/* Dark Mode Toggle */}
+            {/* Dark Mode Toggle (Right Side) */}
             <button
                 onClick={toggleTheme}
-                className="px-3 py-1 border rounded-md bg-gray-200 dark:bg-gray-700 dark:text-white"
+                className="px-3 py-1 border rounded-md bg-gray-200 dark:bg-gray-700 dark:text-white absolute right-6 md:relative"
             >
                 {theme === "light" ? <FaMoon size={20} /> : <FaSun size={20} />}
             </button>
         </header>
     );
+
 
 }

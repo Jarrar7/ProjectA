@@ -6,7 +6,7 @@ const SidebarStudentTeacher = ({ activeSection, setActiveSection, logout }) => {
 
     return (
         <>
-            {/* 🔹 Mobile Menu Button - Fixed at Top Left */}
+            {/* Mobile Menu Button - Fixed at Top Left */}
             <button
                 onClick={() => setIsOpen(true)}
                 className="md:hidden fixed top-4 left-4 z-50 p-3 bg-indigo-600 text-white rounded-full shadow-lg"
@@ -14,7 +14,7 @@ const SidebarStudentTeacher = ({ activeSection, setActiveSection, logout }) => {
                 <FaBars size={20} />
             </button>
 
-            {/* 🔹 Backdrop when Sidebar is Open */}
+            {/* Backdrop when Sidebar is Open */}
             {isOpen && (
                 <div
                     className="fixed inset-0 bg-black bg-opacity-50 z-40"
@@ -22,12 +22,12 @@ const SidebarStudentTeacher = ({ activeSection, setActiveSection, logout }) => {
                 />
             )}
 
-            {/* 🔹 Sidebar - Responsive and Smooth Animation */}
+            {/* Sidebar - Responsive and Smooth Animation */}
             <aside
                 className={`fixed top-0 left-0 h-full bg-indigo-600 dark:bg-gray-900 text-white transform transition-transform duration-300 ease-in-out flex flex-col z-50 ${isOpen ? "translate-x-0" : "-translate-x-full"
                     } md:translate-x-0 md:relative md:w-64 w-64 shadow-lg`}
             >
-                {/* 🔹 Branding + Close Button */}
+                {/* Branding + Close Button */}
                 <div className="flex items-center justify-between h-16 bg-indigo-700 dark:bg-gray-800 text-xl font-bold px-4">
                     AttendEase
                     {/* Close Button (Only on Mobile) */}
@@ -36,7 +36,7 @@ const SidebarStudentTeacher = ({ activeSection, setActiveSection, logout }) => {
                     </button>
                 </div>
 
-                {/* 🔹 Navigation Links */}
+                {/* Navigation Links */}
                 <nav className="flex-1 mt-4">
                     <ul>
                         {[
@@ -61,7 +61,7 @@ const SidebarStudentTeacher = ({ activeSection, setActiveSection, logout }) => {
                     </ul>
                 </nav>
 
-                {/* 🔹 Logout Button - Fixed at Bottom */}
+                {/* Logout Button - Fixed at Bottom */}
                 <button
                     onClick={logout}
                     className="hover:bg-red-600 dark:hover:bg-red-700 p-4 flex items-center cursor-pointer transition-all duration-200 w-full text-left mt-auto"
