@@ -2,14 +2,14 @@ const YearSemesterFilter = ({ selectedYear, setSelectedYear, selectedSemester, s
 
     <div className="flex items-center space-x-4 mb-4">
         <div>
-            <label htmlFor="year-select" className="block text-gray-700 font-medium">
+            <label htmlFor="year-select" className="block text-gray-700 dark:text-gray-300 font-medium">
                 Year:
             </label>
             <select
                 id="year-select"
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(e.target.value)}
-                className="block w-full px-4 py-2 border rounded-md shadow-sm focus:ring focus:ring-indigo-300"
+                className="block w-full px-4 py-2 border rounded-md shadow-sm focus:ring focus:ring-indigo-300 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
             >
                 <option value="2025">2025</option>
                 <option value="2024">2024</option>
@@ -17,20 +17,21 @@ const YearSemesterFilter = ({ selectedYear, setSelectedYear, selectedSemester, s
             </select>
         </div>
         <div>
-            <label htmlFor="semester-select" className="block text-gray-700 font-medium">
+            <label htmlFor="semester-select" className="block text-gray-700 dark:text-gray-300 font-medium">
                 Semester:
             </label>
             <select
                 id="semester-select"
                 value={selectedSemester}
                 onChange={(e) => setSelectedSemester(e.target.value)}
-                className="block w-full px-4 py-2 border rounded-md shadow-sm focus:ring focus:ring-indigo-300"
+                className="block w-full px-4 py-2 border rounded-md shadow-sm focus:ring focus:ring-indigo-300 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
             >
                 <option value="1">1</option>
                 <option value="2">2</option>
             </select>
         </div>
     </div>
+
 );
 
 export default YearSemesterFilter;

@@ -20,13 +20,14 @@ const CourseSearch = ({ courses, setFilteredCourses }) => {
         <div className="mb-4">
             <input
                 type="text"
-                className="p-2 border border-gray-300 rounded"
+                className="p-2 border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-800 dark:text-gray-200"
                 placeholder="Search courses by name..."
                 value={searchQuery}
                 onChange={handleSearchChange} // Trigger search on input change
             />
         </div>
     );
+
 };
 
 export default CourseSearch;

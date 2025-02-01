@@ -1,7 +1,7 @@
 import { useUser } from "../context/UserContext";
 import { useState, useEffect } from "react";
 import { Calendar } from "@/app/components/ui/calendar";
-import { supabase } from "@/lib/supabaseClient"; 
+import { supabase } from "@/lib/supabaseClient";
 
 export default function CalendarComponent({ events, selectedDate, onDateChange }) {
     const { user } = useUser(); // Get user data from context
@@ -134,9 +134,9 @@ export default function CalendarComponent({ events, selectedDate, onDateChange }
     const filteredLectures = lectures.filter(lecture => formatDate(lecture.date) === formatDate(date));
 
     return (
-        <div className="flex justify-center p-4 bg-gray-100">
-            <div className="bg-white rounded-xl shadow-lg p-6 max-w-lg w-full">
-                <h2 className="text-2xl font-semibold text-gray-800 text-center mb-4">
+        <div className="flex justify-center p-4 bg-gray-100 dark:bg-gray-800 min-h-screen">
+            <div className="bg-white dark:bg-gray-900 dark:text-gray-200 rounded-xl shadow-lg p-6 max-w-lg w-full">
+                <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 text-center mb-4">
                     Select a Date
                 </h2>
                 <div className="relative mb-6">
@@ -145,23 +145,27 @@ export default function CalendarComponent({ events, selectedDate, onDateChange }
                         selected={date}
                         onSelect={setDate}
                         events={getCalendarEvents()} // Pass events to the Calendar component
-                        className="w-full rounded-lg border border-gray-300 shadow-md focus:ring-2 focus:ring-indigo-500"
+                        className="w-full rounded-lg border border-gray-300 dark:border-gray-700 shadow-md focus:ring-2 focus:ring-indigo-500"
                     />
                 </div>
                 {/* Render lectures for the selected date */}
                 <div className="mt-4">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-2">Lectures for {formatDate(date)}</h3>
+                    <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
+                        Lectures for {formatDate(date)}
+                    </h3>
                     <ul>
                         {filteredLectures.length === 0 ? (
-                            <li className="text-gray-500">No lectures for this day.</li>
+                            <li className="text-gray-500 dark:text-gray-400">No lectures for this day.</li>
                         ) : (
                             filteredLectures.map((lecture, index) => (
-                                <li key={index} className="text-gray-700 mb-2">
+                                <li key={index} className="text-gray-700 dark:text-gray-300 mb-2">
                                     <strong>{lecture.course_name}</strong>
                                     <br />
-                                    <span className="text-gray-600">Room: {lecture.room}</span>
+                                    <span className="text-gray-600 dark:text-gray-400">Room: {lecture.room}</span>
                                     <br />
-                                    <span className="text-gray-600">Time: {formatTime(lecture.start_time)} - {formatTime(lecture.end_time)}</span>
+                                    <span className="text-gray-600 dark:text-gray-400">
+                                        Time: {formatTime(lecture.start_time)} - {formatTime(lecture.end_time)}
+                                    </span>
                                 </li>
                             ))
                         )}
@@ -170,4 +174,5 @@ export default function CalendarComponent({ events, selectedDate, onDateChange }
             </div>
         </div>
     );
+
 }

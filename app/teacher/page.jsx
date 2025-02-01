@@ -111,23 +111,31 @@ function TeacherDashboard() {
             />
 
             {/* Main Content */}
-            <div className="flex-1 flex flex-col min-h-screen">
+            <div className="flex-1 flex flex-col min-h-screen dark:bg-gray-900">
                 {/* Header */}
                 <Header />
 
                 {/* Content Area */}
-                <div className="flex-1 bg-gray-100 p-6 overflow-auto">
+                <div className="flex-1 bg-gray-100 dark:bg-gray-800 p-6 overflow-auto">
                     {activeSection === "dashboard" && !selectedCourse && (
                         <div>
-                            <h2 className="text-2xl font-bold mb-4">Your Courses</h2>
+                            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">
+                                Your Courses
+                            </h2>
 
                             {/* Course search */}
                             <CourseSearch courses={items} setFilteredCourses={setFilteredCourses} />
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                                 {filteredCourses.map((course) => (
-                                    <div key={course.id} className="bg-white shadow-md rounded-lg p-6">
-                                        <button onClick={() => handleCourseClick(course)}>
+                                    <div
+                                        key={course.id}
+                                        className="bg-white dark:bg-gray-900 shadow-md rounded-lg p-6"
+                                    >
+                                        <button
+                                            onClick={() => handleCourseClick(course)}
+                                            className="text-gray-800 dark:text-gray-200"
+                                        >
                                             {course.course_name}
                                         </button>
                                     </div>
@@ -158,6 +166,7 @@ function TeacherDashboard() {
             </div>
         </div>
     );
+
 }
 
 export default withRoleProtection(TeacherDashboard, ["teacher"]);

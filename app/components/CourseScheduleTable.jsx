@@ -83,7 +83,7 @@ const CourseScheduleTable = ({ schedule, participants, onBack, selectedCourse })
         <div>
             {/* Back to Courses Button */}
             {!showEditAttendanceModal && !showFileUploadModal && (
-                <button onClick={onBack} className="mb-4 text-blue-500">
+                <button onClick={onBack} className="mb-4 text-blue-500 dark:text-blue-400">
                     &larr; Back to Courses
                 </button>
             )}
@@ -93,14 +93,18 @@ const CourseScheduleTable = ({ schedule, participants, onBack, selectedCourse })
                 <div className="mb-4">
                     <button
                         onClick={() => setActiveTab("schedule")}
-                        className={`mr-4 px-4 py-2 rounded ${activeTab === "schedule" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
+                        className={`mr-4 px-4 py-2 rounded ${activeTab === "schedule"
+                                ? "bg-blue-500 text-white"
+                                : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                             }`}
                     >
                         Course Schedule
                     </button>
                     <button
                         onClick={() => setActiveTab("participants")}
-                        className={`px-4 py-2 rounded ${activeTab === "participants" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
+                        className={`px-4 py-2 rounded ${activeTab === "participants"
+                                ? "bg-blue-500 text-white"
+                                : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                             }`}
                     >
                         Course Participants
@@ -111,9 +115,9 @@ const CourseScheduleTable = ({ schedule, participants, onBack, selectedCourse })
             {/* Course Schedule Table */}
             {!showEditAttendanceModal && !showFileUploadModal && activeTab === "schedule" && (
                 <div>
-                    <h2 className="text-2xl font-bold mb-4">Course Schedule</h2>
-                    <table className="min-w-full bg-white shadow-md rounded-lg">
-                        <thead>
+                    <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">Course Schedule</h2>
+                    <table className="min-w-full bg-white dark:bg-gray-900 shadow-md rounded-lg">
+                        <thead className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100">
                             <tr>
                                 <th className="py-2 px-4 border-b">Date</th>
                                 <th className="py-2 px-4 border-b">Hours of Lecture</th>
@@ -124,13 +128,13 @@ const CourseScheduleTable = ({ schedule, participants, onBack, selectedCourse })
                         <tbody>
                             {schedule && schedule.length > 0 ? (
                                 schedule.map((entry, index) => (
-                                    <tr key={index}>
+                                    <tr key={index} className="hover:bg-gray-100 dark:hover:bg-gray-700">
                                         <td className="py-2 px-4 border-b text-center">{entry.date}</td>
                                         <td className="py-2 px-4 border-b text-center">{`${entry.start_time} - ${entry.end_time}`}</td>
                                         <td className="py-2 px-4 border-b text-center">{entry.room}</td>
                                         <td className="py-2 px-4 border-b text-center">
                                             <button
-                                                className="btn btn-primary"
+                                                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                                                 onClick={() => handleEditClickCourse(entry)}
                                             >
                                                 Edit
@@ -140,7 +144,7 @@ const CourseScheduleTable = ({ schedule, participants, onBack, selectedCourse })
                                 ))
                             ) : (
                                 <tr>
-                                    <td className="py-2 px-4 text-center" colSpan="4">
+                                    <td className="py-2 px-4 text-center dark:text-gray-300" colSpan="4">
                                         No schedule available
                                     </td>
                                 </tr>
@@ -153,9 +157,9 @@ const CourseScheduleTable = ({ schedule, participants, onBack, selectedCourse })
             {/* Course Participants Table */}
             {!showEditAttendanceModal && !showFileUploadModal && activeTab === "participants" && (
                 <div>
-                    <h2 className="text-2xl font-bold mb-4">Course Participants</h2>
-                    <table className="min-w-full bg-white shadow-md rounded-lg">
-                        <thead>
+                    <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">Course Participants</h2>
+                    <table className="min-w-full bg-white dark:bg-gray-900 shadow-md rounded-lg">
+                        <thead className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100">
                             <tr>
                                 <th className="py-2 px-4 border-b">ID</th>
                                 <th className="py-2 px-4 border-b">Name</th>
@@ -166,13 +170,13 @@ const CourseScheduleTable = ({ schedule, participants, onBack, selectedCourse })
                         <tbody>
                             {participants && participants.length > 0 ? (
                                 participants.map((participant, index) => (
-                                    <tr key={index}>
+                                    <tr key={index} className="hover:bg-gray-100 dark:hover:bg-gray-700">
                                         <td className="py-2 px-4 border-b text-center">{participant.human_id}</td>
                                         <td className="py-2 px-4 border-b text-center">{participant.name}</td>
                                         <td className="py-2 px-4 border-b text-center">{participant.attendance}</td>
                                         <td className="py-2 px-4 border-b text-center">
                                             <button
-                                                className="btn btn-primary"
+                                                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                                                 onClick={() => handleEditAttendance(participant)}
                                             >
                                                 Edit
@@ -182,7 +186,7 @@ const CourseScheduleTable = ({ schedule, participants, onBack, selectedCourse })
                                 ))
                             ) : (
                                 <tr>
-                                    <td className="py-2 px-4 text-center" colSpan="4">
+                                    <td className="py-2 px-4 text-center dark:text-gray-300" colSpan="4">
                                         No participants available
                                     </td>
                                 </tr>
@@ -203,16 +207,18 @@ const CourseScheduleTable = ({ schedule, participants, onBack, selectedCourse })
 
             {/* Modal for Uploading Photos */}
             {showFileUploadModal && selectedRow && (
-                <div className="modal-overlay">
-                    <div className="modal">
-                        <h2 className="text-2xl font-bold mb-6">Upload Attendance Photos</h2>
-                        <p>
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg w-full max-w-md">
+                        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">
+                            Upload Attendance Photos
+                        </h2>
+                        <p className="text-gray-700 dark:text-gray-300">
                             <strong>Date:</strong> {selectedRow.date}
                         </p>
-                        <p>
+                        <p className="text-gray-700 dark:text-gray-300">
                             <strong>Hours of Lecture:</strong> {selectedRow.start_time} - {selectedRow.end_time}
                         </p>
-                        <p>
+                        <p className="text-gray-700 dark:text-gray-300">
                             <strong>Room:</strong> {selectedRow.room}
                         </p>
 
@@ -225,7 +231,7 @@ const CourseScheduleTable = ({ schedule, participants, onBack, selectedCourse })
 
                         <button
                             onClick={closeFileUploadModal}
-                            className="mt-4 text-blue-500"
+                            className="mt-4 text-blue-500 dark:text-blue-400"
                             disabled={uploading}
                         >
                             Cancel
@@ -235,6 +241,7 @@ const CourseScheduleTable = ({ schedule, participants, onBack, selectedCourse })
             )}
         </div>
     );
+
 };
 
 export default CourseScheduleTable;

@@ -106,9 +106,9 @@ const EditAttendanceModal = ({ student, courseId, onClose }) => {
                     Edit Attendance for {student.name}
                 </h2>
                 {loading ? (
-                    <div className="loading-container">
-                        <div className="spinner"></div>
-                        <p>Loading...</p>
+                    <div className="flex flex-col items-center">
+                        <div className="w-8 h-8 border-4 border-blue-500 border-dotted rounded-full animate-spin"></div>
+                        <p className="mt-2 text-gray-700 dark:text-gray-300">Loading...</p>
                     </div>
                 ) : (
                     <EditableParticipanceTable

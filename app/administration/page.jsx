@@ -40,7 +40,8 @@ function AdminDashboard() {
                     <Header />
 
                     {/* Content Area */}
-                    <main className="flex-1 bg-gray-100 p-6 overflow-auto">
+                    <main className="flex-1 bg-gray-100 dark:bg-gray-900 p-6 overflow-auto">
+
                         {/* Conditionally render the grid based on dashboard selection */}
                         {activeSection === 'manageUsers' && (
                             <ManageUsers />

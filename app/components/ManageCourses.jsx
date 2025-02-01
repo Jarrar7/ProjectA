@@ -277,7 +277,7 @@ export default function ManageCourses() {
 
 
     return (
-        <div className="p-6">
+        <div className="p-6 dark:bg-gray-800 min-h-screen">
             <h1 className="text-3xl font-bold mb-6">Manage Courses</h1>
             <YearSemesterFilter
                 selectedYear={yearFilter}
@@ -306,7 +306,6 @@ export default function ManageCourses() {
                     onAddStudent={handleAddStudent}
                     onRemoveStudent={handleRemoveStudent}
                     onUpdateEnrolledStudents={setEnrolledStudents}
-
                 />
             )}
             {isModalOpen && (
@@ -320,4 +319,5 @@ export default function ManageCourses() {
             )}
         </div>
     );
+
 }

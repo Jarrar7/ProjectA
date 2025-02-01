@@ -73,22 +73,26 @@ export default function Profile() {
   }
 
   return (
-    <div className="p-10 w-full">
-      <h2 className="text-4xl font-semibold text-gray-900">Your Profile</h2>
-      <p className="mt-2 text-base text-gray-600">Update your information and profile picture.</p>
+    <div className="p-10 w-full bg-white dark:bg-gray-900 rounded-lg shadow-md">
+      <h2 className="text-4xl font-semibold text-gray-900 dark:text-gray-100">Your Profile</h2>
+      <p className="mt-2 text-base text-gray-600 dark:text-gray-300">
+        Update your information and profile picture.
+      </p>
 
       <div className="flex mt-6 space-x-10">
         {/* Profile Photo */}
         <div className="flex flex-col items-center w-1/4">
-          <label className="block text-sm font-medium text-gray-900">Profile Photo</label>
+          <label className="block text-sm font-medium text-gray-900 dark:text-gray-300">
+            Profile Photo
+          </label>
           <div className="mt-4">
             {photoLoading ? (
-              <p>Loading photo...</p>
+              <p className="text-gray-700 dark:text-gray-300">Loading photo...</p>
             ) : (
               <img
                 src={profilePhoto || "/default-avatar.png"}
                 alt="Profile"
-                className="h-40 w-40 rounded-full object-cover border border-gray-300 shadow-md transition-transform hover:scale-105"
+                className="h-40 w-40 rounded-full object-cover border border-gray-300 dark:border-gray-600 shadow-md transition-transform hover:scale-105"
               />
             )}
           </div>
@@ -99,48 +103,60 @@ export default function Profile() {
         <div className="flex-grow">
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-900">First Name</label>
+              <label className="block text-sm font-medium text-gray-900 dark:text-gray-300">
+                First Name
+              </label>
               <input
                 type="text"
                 defaultValue={user.firstName}
                 disabled
-                className="block w-full rounded-lg border-gray-300 py-3 px-4 text-gray-900 shadow-sm"
+                className="block w-full rounded-lg border-gray-300 dark:border-gray-600 py-3 px-4 text-gray-900 dark:text-gray-200 shadow-sm bg-gray-50 dark:bg-gray-800"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-900">Last Name</label>
+              <label className="block text-sm font-medium text-gray-900 dark:text-gray-300">
+                Last Name
+              </label>
               <input
                 type="text"
                 defaultValue={user.lastName}
                 disabled
-                className="block w-full rounded-lg border-gray-300 py-3 px-4 text-gray-900 shadow-sm"
+                className="block w-full rounded-lg border-gray-300 dark:border-gray-600 py-3 px-4 text-gray-900 dark:text-gray-200 shadow-sm bg-gray-50 dark:bg-gray-800"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-900">Email Address</label>
+              <label className="block text-sm font-medium text-gray-900 dark:text-gray-300">
+                Email Address
+              </label>
               <input
                 type="email"
                 value={email}
                 disabled
-                className="block w-full rounded-lg border-gray-300 py-3 px-4 text-gray-900 shadow-sm"
+                className="block w-full rounded-lg border-gray-300 dark:border-gray-600 py-3 px-4 text-gray-900 dark:text-gray-200 shadow-sm bg-gray-50 dark:bg-gray-800"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-900">Password</label>
+              <label className="block text-sm font-medium text-gray-900 dark:text-gray-300">
+                Password
+              </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full rounded-lg border-gray-300 py-3 px-4 text-gray-900 shadow-sm"
+                className="block w-full rounded-lg border-gray-300 dark:border-gray-600 py-3 px-4 text-gray-900 dark:text-gray-200 shadow-sm bg-gray-50 dark:bg-gray-800"
               />
             </div>
           </div>
 
-          <button onClick={handleUpdatePassword} className="mt-6 bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-500">
+          <button
+            onClick={handleUpdatePassword}
+            className="mt-6 bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-500"
+          >
             Save
           </button>
         </div>
       </div>
     </div>
   );
+
 }
