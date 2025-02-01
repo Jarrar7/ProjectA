@@ -95,14 +95,14 @@ const MessagesPage = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
       <MessageSidebar
         selectedSection={selectedSection}
         setSelectedSection={setSelectedSection}
         setActiveMessage={setActiveMessage} // Reset active message on section change
       />
-      <div className="flex-1 p-6 bg-white rounded-lg shadow-lg overflow-y-auto">
-        {selectedSection === 'Inbox' && (
+      <div className="flex-1 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-y-auto">
+        {selectedSection === "Inbox" && (
           <MessageListWithDetails
             messages={inboxMessages} // or sentMessages, draftMessages based on section
             activeMessage={activeMessage}
@@ -110,17 +110,18 @@ const MessagesPage = () => {
             selectedSection={selectedSection} // Pass selectedSection here
           />
         )}
-        {selectedSection === 'Sent' && (
+        {selectedSection === "Sent" && (
           <MessageListWithDetails
             messages={sentMessages}
             activeMessage={activeMessage}
             setActiveMessage={setActiveMessage}
           />
         )}
-        {selectedSection === 'New Message' && <ComposeMessage onSend={handleSend} />}
+        {selectedSection === "New Message" && <ComposeMessage onSend={handleSend} />}
       </div>
     </div>
   );
+
 };
 
 export default MessagesPage;

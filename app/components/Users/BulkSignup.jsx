@@ -65,10 +65,13 @@ function BulkSignup() {
 
     return (
         <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">Bulk Signup</h2>
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-6">
+                Bulk Signup
+            </h2>
 
+            {/* Excel File Upload Field */}
             <div>
-                <label htmlFor="file-upload" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="file-upload" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Upload Excel File
                 </label>
                 <input
@@ -77,13 +80,13 @@ function BulkSignup() {
                     type="file"
                     accept=".xlsx, .xls"
                     onChange={handleFileUpload}
-                    className="mt-1 block w-full rounded-md border-gray-300 py-3 px-4 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300 ease-in-out"
+                    className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white py-3 px-4 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300 ease-in-out"
                 />
             </div>
 
-            {/* ZIP Upload Field */}
+            {/* ZIP File Upload Field */}
             <div>
-                <label htmlFor="zip-upload" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="zip-upload" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Upload Photos (ZIP File)
                 </label>
                 <input
@@ -92,18 +95,23 @@ function BulkSignup() {
                     type="file"
                     accept=".zip"
                     onChange={(e) => setZipFile(e.target.files[0])} // State to store ZIP file
-                    className="mt-1 block w-full rounded-md border-gray-300 py-3 px-4 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300 ease-in-out"
+                    className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white py-3 px-4 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300 ease-in-out"
                 />
             </div>
 
             {users.length > 0 && (
                 <div className="flex flex-col mt-6">
-                    <p className="text-sm text-gray-600">Loaded {users.length} users.</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Loaded {users.length} users.
+                    </p>
                     <button
                         onClick={handleBulkSignup}
-                        disabled={loading} // Disable button while loading
-                        className={`mt-4 w-full rounded-md py-3 px-6 text-white font-medium shadow-sm transition-all duration-200 ease-in-out ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-500 focus:ring-green-500"
-                            }`}
+                        disabled={loading}
+                        className={`mt-4 w-full rounded-md py-3 px-6 font-medium shadow-sm transition-all duration-200 ease-in-out 
+                            ${loading
+                                ? "bg-gray-400 cursor-not-allowed dark:bg-gray-600"
+                                : "bg-green-600 hover:bg-green-500 focus:ring-green-500 dark:bg-green-700 dark:hover:bg-green-600"
+                            } text-white`}
                     >
                         {loading ? "Signing up..." : "Signup Users"}
                     </button>
@@ -111,6 +119,7 @@ function BulkSignup() {
             )}
         </div>
     );
+
 }
 
 export default BulkSignup;

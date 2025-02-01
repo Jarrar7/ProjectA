@@ -136,11 +136,12 @@ function StudentDashboard() {
 
     if (loading) {
         return (
-            <div className="loading-container">
-                <div className="spinner"></div>
-                <p>Loading...</p>
+            <div className="flex flex-col items-center justify-center h-screen">
+                <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+                <p className="mt-4 text-lg text-gray-700 dark:text-gray-300">Loading...</p>
             </div>
         );
+
     }
 
     return (
@@ -149,7 +150,10 @@ function StudentDashboard() {
                 {/* Sidebar */}
                 <SidebarStudentTeacher
                     activeSection={activeSection}
-                    setActiveSection={setActiveSection}
+                    setActiveSection={(section) => {
+                        setActiveSection(section);
+                        setSelectedCourse(null); // Reset selected course when switching sections
+                    }}
                     logout={logout}
                 />
 
@@ -159,18 +163,26 @@ function StudentDashboard() {
                     <Header />
 
                     {/* Content Area */}
-                    <main className="flex-1 bg-gray-100 p-6 overflow-auto">
+                    <main className="flex-1 bg-gray-100 dark:bg-gray-900 p-6 overflow-auto">
                         {activeSection === "dashboard" && !selectedCourse && (
                             <div>
-                                <h2 className="text-2xl font-bold mb-4">Your Courses</h2>
+                                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">
+                                    Your Courses
+                                </h2>
 
                                 {/* Course search component */}
                                 <CourseSearch courses={courses} setFilteredCourses={setFilteredCourses} />
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                                     {filteredCourses.map((course) => (
-                                        <div key={course.id} className="bg-white shadow-md rounded-lg p-6">
-                                            <button onClick={() => handleCourseClick(course)}>
+                                        <div
+                                            key={course.id}
+                                            className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 transition-all duration-200 hover:shadow-lg"
+                                        >
+                                            <button
+                                                onClick={() => handleCourseClick(course)}
+                                                className="text-gray-800 dark:text-gray-200"
+                                            >
                                                 {course.course_name}
                                             </button>
                                         </div>
@@ -178,6 +190,7 @@ function StudentDashboard() {
                                 </div>
                             </div>
                         )}
+
                         {selectedCourse && (
                             <ParticipanceTable
                                 data={attendanceData}
@@ -185,10 +198,7 @@ function StudentDashboard() {
                             />
                         )}
 
-                        {activeSection === 'messages' && (
-                            <Messages />
-                        )}
-
+                        {activeSection === "messages" && <Messages />}
                         {activeSection === "calendar" && <CalendarComponent />}
                         {activeSection === "profile" && <Profile />}
                     </main>
@@ -196,6 +206,7 @@ function StudentDashboard() {
             </div>
         </main>
     );
+
 }
 
 export default withRoleProtection(StudentDashboard, ["student"]);

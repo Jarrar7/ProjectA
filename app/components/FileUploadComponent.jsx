@@ -170,15 +170,17 @@ const FileUploadComponent = ({ sessionId, onFilesUploaded }) => {
 
     return (
         <div>
-            <h3 className="text-lg font-bold mb-4">Upload Attendance Photos</h3>
-            {error && <p className="text-red-500 mb-2">{error}</p>}
+            <h3 className="text-lg font-bold mb-4 text-gray-800 dark:text-gray-100">
+                Upload Attendance Photos
+            </h3>
+            {error && <p className="text-red-500 dark:text-red-400 mb-2">{error}</p>}
 
             <input
                 type="file"
                 accept="image/*"
                 multiple
                 onChange={handleFileChange}
-                className="mb-4"
+                className="mb-4 text-gray-700 dark:text-gray-200"
                 disabled={uploading || selectedFiles.length >= 3}
             />
 
@@ -188,11 +190,11 @@ const FileUploadComponent = ({ sessionId, onFilesUploaded }) => {
                         <img
                             src={URL.createObjectURL(file)}
                             alt={`Preview ${index + 1}`}
-                            className="w-16 h-16 object-cover rounded"
+                            className="w-16 h-16 object-cover rounded border dark:border-gray-700"
                         />
                         <button
                             onClick={() => handleRemoveFile(index)}
-                            className="text-red-500"
+                            className="text-red-500 dark:text-red-400"
                             disabled={uploading}
                         >
                             Remove
@@ -203,34 +205,38 @@ const FileUploadComponent = ({ sessionId, onFilesUploaded }) => {
 
             <button
                 onClick={handleUpload}
-                className={`bg-blue-500 text-white py-2 px-4 rounded ${uploading ? "opacity-50" : ""
+                className={`bg-blue-500 text-white py-2 px-4 rounded ${uploading ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-600"
                     }`}
                 disabled={uploading}
             >
                 {uploading ? "Uploading..." : "Upload"}
             </button>
 
-            <h3 className="text-lg font-bold mt-6">Processed Attendance Photos</h3>
+            <h3 className="text-lg font-bold mt-6 text-gray-800 dark:text-gray-100">
+                Processed Attendance Photos
+            </h3>
             <div className="flex flex-wrap">
                 {processedFiles.length > 0 ? (
                     processedFiles.map((file, index) => (
                         <div
                             key={index}
                             className="mr-4 mb-4 cursor-pointer"
-                            onClick={() =>
-                                handleImageClick(file.name)
-                            }
+                            onClick={() => handleImageClick(file.name)}
                         >
                             <img
                                 src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/processed-attendance-photos/processed/${sessionId}/${file.name}`}
                                 alt={`Processed File ${index + 1}`}
-                                className="w-16 h-16 object-cover rounded"
+                                className="w-16 h-16 object-cover rounded border dark:border-gray-700"
                             />
-                            <p className="text-center text-sm">Photo {index + 1}</p>
+                            <p className="text-center text-sm text-gray-700 dark:text-gray-300">
+                                Photo {index + 1}
+                            </p>
                         </div>
                     ))
                 ) : (
-                    <p className="text-gray-500">No processed photos available yet.</p>
+                    <p className="text-gray-500 dark:text-gray-400">
+                        No processed photos available yet.
+                    </p>
                 )}
             </div>
 
@@ -253,6 +259,7 @@ const FileUploadComponent = ({ sessionId, onFilesUploaded }) => {
             )}
         </div>
     );
+
 };
 
 export default FileUploadComponent;

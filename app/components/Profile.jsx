@@ -3,34 +3,17 @@
 import { useEffect, useState } from "react";
 import { useUser } from "../context/UserContext";
 import { supabase } from "@/lib/supabaseClient";
+import ProfilePhotoUpdate from "../components/ProfilePhotoUpdate";
 
-export default function ProfileForm() {
-  const { user, loading } = useUser(); // Access `user` and `loading` from UserContext
+export default function Profile() {
+  const { user, loading } = useUser();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const handleUpdatePassword = async (e) => {
-    e.preventDefault(); // Prevent form submission from reloading the page
-  
-    if (!password) {
-      alert("Please enter a new password.");
-      return;
-    }
-  
-    const { error } = await supabase.auth.updateUser({ password });
-  
-    if (error) {
-      console.error("Error updating password:", error.message);
-      alert("Failed to update password: " + error.message);
-    } else {
-      alert("Password updated successfully!");
-      setPassword(""); // Clear the input field after successful update
-    }
-  };
-  
+  const [profilePhoto, setProfilePhoto] = useState("/default-avatar.png");
+  const [photoLoading, setPhotoLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserEmail = async () => {
+    const fetchUserData = async () => {
       const { data, error } = await supabase.auth.getUser();
       if (error) {
         console.error("Error fetching user:", error.message);
@@ -39,153 +22,141 @@ export default function ProfileForm() {
       }
     };
 
-    fetchUserEmail();
-  }, []);
+    const fetchSignedUrl = async () => {
+      if (user?.photo_url) {
+        setPhotoLoading(true);
+        const { data, error } = await supabase.storage
+          .from("student-photos")
+          .createSignedUrl(user.photo_url, 3600);
 
+        if (error) {
+          console.error("Error fetching signed URL:", error.message);
+        } else {
+          setProfilePhoto(data.signedUrl);
+        }
+        setPhotoLoading(false);
+      } else {
+        setPhotoLoading(false);
+      }
+    };
+
+    fetchUserData();
+    fetchSignedUrl();
+  }, [user]);
+
+  const handleUpdatePassword = async (e) => {
+    e.preventDefault();
+    if (!password) {
+      alert("Please enter a new password.");
+      return;
+    }
+
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) {
+      alert("Failed to update password: " + error.message);
+    } else {
+      alert("Password updated successfully!");
+      setPassword("");
+    }
+  };
+
+  const handlePhotoUpdate = (newPhotoUrl) => {
+    setProfilePhoto(newPhotoUrl);
+  };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center">
-        <p>Loading...</p>
-      </div>
-    );
+    return <div className="flex justify-center items-center min-h-screen"><p>Loading...</p></div>;
   }
 
   if (!user) {
-    return (
-      <div className="flex justify-center items-center">
-        <p>You are not logged in. Please log in to view your profile.</p>
-      </div>
-    );
+    return <div className="flex justify-center items-center min-h-screen"><p>You are not logged in.</p></div>;
   }
 
   return (
-    <form className="space-y-8 bg-white p-6 rounded-lg shadow-lg">
-      {/* Profile Header */}
-      <div className="border-b border-gray-200 pb-8">
-        <h2 className="text-3xl font-semibold text-gray-900">Your Profile</h2>
-        <p className="mt-2 text-base text-gray-600">
-          Update your information and profile picture.
-        </p>
-      </div>
+    <div className="p-10 w-full bg-white dark:bg-gray-900 rounded-lg shadow-md">
+      <h2 className="text-4xl font-semibold text-gray-900 dark:text-gray-100">Your Profile</h2>
+      <p className="mt-2 text-base text-gray-600 dark:text-gray-300">
+        Update your information and profile picture.
+      </p>
 
-      {/* Personal Information Section */}
-      <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-        {/* First Name */}
-        <div className="sm:col-span-3">
-          <label htmlFor="first-name" className="block text-sm font-medium text-gray-900">
-            First Name
-          </label>
-          <div className="mt-2">
-            <input
-              id="first-name"
-              name="first-name"
-              defaultValue={user.firstName}
-              disabled={true}
-              type="text"
-              autoComplete="given-name"
-              className="block w-full rounded-lg border border-gray-300 py-3 px-4 text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm"
-            />
-          </div>
-        </div>
-
-        {/* Last Name */}
-        <div className="sm:col-span-3">
-          <label htmlFor="last-name" className="block text-sm font-medium text-gray-900">
-            Last Name
-          </label>
-          <div className="mt-2">
-            <input
-              id="last-name"
-              name="last-name"
-              defaultValue={user.lastName}
-              disabled={true}
-              type="text"
-              autoComplete="family-name"
-              className="block w-full rounded-lg border border-gray-300 py-3 px-4 text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm"
-            />
-          </div>
-        </div>
-
-        {/* Email */}
-        <div className="sm:col-span-3">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-900">
-            Email Address
-          </label>
-          <div className="mt-2">
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={email}
-              disabled={true}
-              className="block w-full rounded-lg border border-gray-300 py-3 px-4 text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm"
-            />
-          </div>
-        </div>
-
-        {/* Password */}
-        <div className="sm:col-span-3">
-          <label htmlFor="password" className="block text-sm font-medium text-gray-900">
-            Password
-          </label>
-          <div className="mt-2">
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="new-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="block w-full rounded-lg border border-gray-300 py-3 px-4 text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm"
-            />
-          </div>
-        </div>
-
-        {/* ID Field */}
-        <div className="sm:col-span-3">
-          <label htmlFor="id" className="block text-sm font-medium text-gray-900">
-            ID
-          </label>
-          <div className="mt-2">
-            <input
-              id="id"
-              name="id"
-              defaultValue={user.human_id}
-              disabled={true}
-              type="text"
-              autoComplete="off"
-              className="block w-full rounded-lg border border-gray-300 py-3 px-4 text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm"
-            />
-          </div>
-        </div>
-
+      <div className="flex mt-6 space-x-10">
         {/* Profile Photo */}
-        <div className="col-span-full">
-          <label htmlFor="photo" className="block text-sm font-medium text-gray-900">
+        <div className="flex flex-col items-center w-1/4">
+          <label className="block text-sm font-medium text-gray-900 dark:text-gray-300">
             Profile Photo
           </label>
-          <div className="mt-2 flex items-center gap-x-3">
-            <button
-              type="button"
-              className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-900 border border-gray-300 shadow-sm hover:bg-gray-200 focus:outline-none"
-            >
-              Change
-            </button>
+          <div className="mt-4">
+            {photoLoading ? (
+              <p className="text-gray-700 dark:text-gray-300">Loading photo...</p>
+            ) : (
+              <img
+                src={profilePhoto || "/default-avatar.png"}
+                alt="Profile"
+                className="h-40 w-40 rounded-full object-cover border border-gray-300 dark:border-gray-600 shadow-md transition-transform hover:scale-105"
+              />
+            )}
           </div>
+          <ProfilePhotoUpdate user={user} onUpdate={handlePhotoUpdate} />
+        </div>
+
+        {/* Personal Information */}
+        <div className="flex-grow">
+          <div className="grid grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-900 dark:text-gray-300">
+                First Name
+              </label>
+              <input
+                type="text"
+                defaultValue={user.firstName}
+                disabled
+                className="block w-full rounded-lg border-gray-300 dark:border-gray-600 py-3 px-4 text-gray-900 dark:text-gray-200 shadow-sm bg-gray-50 dark:bg-gray-800"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-900 dark:text-gray-300">
+                Last Name
+              </label>
+              <input
+                type="text"
+                defaultValue={user.lastName}
+                disabled
+                className="block w-full rounded-lg border-gray-300 dark:border-gray-600 py-3 px-4 text-gray-900 dark:text-gray-200 shadow-sm bg-gray-50 dark:bg-gray-800"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-900 dark:text-gray-300">
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={email}
+                disabled
+                className="block w-full rounded-lg border-gray-300 dark:border-gray-600 py-3 px-4 text-gray-900 dark:text-gray-200 shadow-sm bg-gray-50 dark:bg-gray-800"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-900 dark:text-gray-300">
+                Password
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="block w-full rounded-lg border-gray-300 dark:border-gray-600 py-3 px-4 text-gray-900 dark:text-gray-200 shadow-sm bg-gray-50 dark:bg-gray-800"
+              />
+            </div>
+          </div>
+
+          <button
+            onClick={handleUpdatePassword}
+            className="mt-6 bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-500"
+          >
+            Save
+          </button>
         </div>
       </div>
-
-      {/* Action Buttons */}
-      <div className="mt-6 flex items-center justify-end gap-x-6">
-        <button
-          type="submit"
-          onClick={handleUpdatePassword}
-          className="rounded-lg bg-indigo-600 px-6 py-2 text-sm font-semibold text-white shadow-md hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        >
-          Save
-        </button>
-      </div>
-    </form>
+    </div>
   );
+
 }

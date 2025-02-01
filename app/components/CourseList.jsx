@@ -27,7 +27,7 @@ export default function CourseList({
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search courses..."
-                    className="border p-2 rounded w-full mr-4"
+                    className="border p-2 rounded w-full mr-4 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                 />
                 <button
                     onClick={onAddCourse}
@@ -40,27 +40,32 @@ export default function CourseList({
             {/* Courses List */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredCourses.map((course) => (
-                    <div key={course.id} className="bg-white shadow-md rounded-lg p-6 relative">
-                        <h2 className="font-bold text-xl mb-2">{course.course_name}</h2>
-                        <p className="text-gray-700 mb-1">Code: {course.course_code}</p>
-                        <p className="text-gray-700 mb-1">Year: {course.year}</p>
-                        <p className="text-gray-700 mb-4">Semester: {course.semester}</p>
+                    <div
+                        key={course.id}
+                        className="bg-white dark:bg-gray-900 shadow-md rounded-lg p-6 relative"
+                    >
+                        <h2 className="font-bold text-xl text-gray-800 dark:text-gray-100 mb-2">
+                            {course.course_name}
+                        </h2>
+                        <p className="text-gray-700 dark:text-gray-300 mb-1">Code: {course.course_code}</p>
+                        <p className="text-gray-700 dark:text-gray-300 mb-1">Year: {course.year}</p>
+                        <p className="text-gray-700 dark:text-gray-300 mb-4">Semester: {course.semester}</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                             <button
                                 onClick={() => onSelectCourse(course)}
-                                className="text-blue-500 hover:underline"
+                                className="text-blue-500 dark:text-blue-400 hover:underline"
                             >
                                 View Details
                             </button>
                             <button
                                 onClick={() => onEditCourse(course)}
-                                className="text-yellow-500 hover:underline"
+                                className="text-yellow-500 dark:text-yellow-400 hover:underline"
                             >
                                 Edit
                             </button>
                             <button
                                 onClick={() => onDeleteCourse(course.id)}
-                                className="text-red-500 hover:underline"
+                                className="text-red-500 dark:text-red-400 hover:underline"
                             >
                                 Delete
                             </button>
@@ -70,4 +75,5 @@ export default function CourseList({
             </div>
         </div>
     );
+
 }

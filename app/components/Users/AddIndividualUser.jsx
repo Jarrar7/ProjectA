@@ -89,10 +89,12 @@ export default function AddIndividualUser() {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">Sign Up Individual User</h2>
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-6">
+                Sign Up Individual User
+            </h2>
             <div className="grid grid-cols-2 gap-6">
                 <div>
-                    <label htmlFor="firstname" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="firstname" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         First Name
                     </label>
                     <input
@@ -102,11 +104,11 @@ export default function AddIndividualUser() {
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         required
-                        className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 py-2 px-3 shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
                 </div>
                 <div>
-                    <label htmlFor="lastname" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="lastname" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Last Name
                     </label>
                     <input
@@ -116,11 +118,11 @@ export default function AddIndividualUser() {
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
                         required
-                        className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 py-2 px-3 shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
                 </div>
                 <div>
-                    <label htmlFor="human_id" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="human_id" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Human ID
                     </label>
                     <input
@@ -130,11 +132,11 @@ export default function AddIndividualUser() {
                         value={human_id}
                         onChange={(e) => setHumanID(e.target.value)}
                         required
-                        className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 py-2 px-3 shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
                 </div>
                 <div>
-                    <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="role" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Role
                     </label>
                     <input
@@ -144,12 +146,12 @@ export default function AddIndividualUser() {
                         value={role}
                         onChange={(e) => setRole(e.target.value)}
                         required
-                        className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 py-2 px-3 shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
                 </div>
             </div>
             <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Email
                 </label>
                 <input
@@ -159,11 +161,11 @@ export default function AddIndividualUser() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 py-2 px-3 shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 />
             </div>
             <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Password
                 </label>
                 <input
@@ -173,13 +175,13 @@ export default function AddIndividualUser() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 py-2 px-3 shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 />
             </div>
 
             {/* Photo Upload */}
             <div>
-                <label htmlFor="photo-upload" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="photo-upload" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Upload Photo
                 </label>
                 <input
@@ -187,7 +189,7 @@ export default function AddIndividualUser() {
                     type="file"
                     accept="image/*"
                     onChange={(e) => setPhotoFile(e.target.files[0])}
-                    className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 py-2 px-3 shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 />
             </div>
 
@@ -195,13 +197,13 @@ export default function AddIndividualUser() {
                 <button
                     type="submit"
                     disabled={loading}
-                    className={`w-full rounded-md ${loading ? "bg-gray-400" : "bg-indigo-600 hover:bg-indigo-500"
-                        } py-2 px-4 text-white shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
+                    className={`w-full rounded-md ${loading ? "bg-gray-400" : "bg-indigo-600 hover:bg-indigo-500"} 
+                        dark:bg-indigo-700 dark:hover:bg-indigo-600 py-2 px-4 text-white shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
                 >
                     {loading ? "Creating User..." : "Create User"}
                 </button>
             </div>
         </form>
-
     );
+
 }

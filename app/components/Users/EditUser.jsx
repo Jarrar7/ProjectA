@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { supabase } from "@/lib/supabaseClient";
+import axios from "axios";
 
 export default function EditUser() {
     const [searchHumanId, setSearchHumanId] = useState("");
@@ -11,8 +12,10 @@ export default function EditUser() {
     const [humanId, setHumanID] = useState("");
     const [role, setRole] = useState("");
     const [email, setEmail] = useState("");
-    const [photoUrl, setPhotoUrl] = useState("");
+    const [password, setPassword] = useState("");
+    const [selectedFile, setSelectedFile] = useState(null);
     const [loading, setLoading] = useState(false);
+
 
     const handleSearch = async () => {
         if (!searchHumanId.trim()) {
@@ -37,34 +40,70 @@ export default function EditUser() {
             setLastName(data.lastName);
             setHumanID(data.human_id);
             setRole(data.role);
-            setPhotoUrl(data.photo_url || "");
+            setEmail(data.email);
         } catch (error) {
             toast.error("Failed to fetch user data.");
             console.error(error);
         }
     };
 
+    const handlePhotoChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setSelectedFile(file);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
 
         try {
-            setLoading(true);
+            // Prepare updated data
+            const updatedData = {};
+            if (firstName) updatedData.firstName = firstName;
+            if (lastName) updatedData.lastName = lastName;
+            if (humanId) updatedData.human_id = humanId;
+            if (role) updatedData.role = role;
 
-            const updatedData = {
-                firstName: firstName,
-                lastName: lastName,
-                human_id: humanId,
-                role,
-                photo_url: photoUrl,
-            };
+            //Update profile fields (Only send changed fields)
+            if (Object.keys(updatedData).length > 0) {
+                const { error: profileError } = await supabase
+                    .from("profiles")
+                    .update(updatedData)
+                    .eq("id", userId);
 
-            const { data, error } = await supabase
-                .from("profiles")
-                .update(updatedData)
-                .eq("id", userId);
+                if (profileError) throw profileError;
+            }
 
-            if (error) {
-                throw error;
+            //Update Email & Password in Supabase Auth
+            if (email || password) {
+                const authData = {};
+                if (email) authData.email = email;
+                if (password) authData.password = password;
+
+                const { error: authError } = await supabase.auth.updateUser(authData);
+                if (authError) throw authError;
+            }
+
+            // If a new photo is selected, call `update-photo` API
+            if (selectedFile) {
+                const formData = new FormData();
+                formData.append("file", selectedFile); // Correct field name
+                formData.append("userId", userId);
+                formData.append("humanId", humanId);
+
+                const response = await axios.post(
+                    "/api/auth/update-photo",
+                    formData,
+                    { headers: { "Content-Type": "multipart/form-data" } }
+                );
+
+                if (response.status !== 200) {
+                    throw new Error(response.data.error || "Failed to update profile photo.");
+                }
+
+                toast.success("Profile photo updated successfully!");
             }
 
             toast.success("User updated successfully!");
@@ -76,9 +115,15 @@ export default function EditUser() {
         }
     };
 
+
+
+
+
     return (
         <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">Search & Edit User</h2>
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-6">
+                Search & Edit User
+            </h2>
 
             {/* Search Bar */}
             <div className="flex gap-4">
@@ -87,128 +132,97 @@ export default function EditUser() {
                     placeholder="Enter Human ID"
                     value={searchHumanId}
                     onChange={(e) => setSearchHumanId(e.target.value)}
-                    className="block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="block w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 />
                 <button
                     onClick={handleSearch}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500"
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 dark:bg-indigo-700 dark:hover:bg-indigo-600"
                 >
                     Search
                 </button>
             </div>
 
-
             {userId && (
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    <h2 className="text-xl font-semibold text-gray-800 mb-6">Edit User</h2>
+                    <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-6">
+                        Edit User
+                    </h2>
+
                     <div className="grid grid-cols-2 gap-6">
                         <div>
-                            <label htmlFor="firstname" className="block text-sm font-medium text-gray-700">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                 First Name
                             </label>
                             <input
-                                id="firstname"
-                                name="firstname"
                                 type="text"
                                 value={firstName}
                                 onChange={(e) => setFirstName(e.target.value)}
-                                className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                className="block w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white py-2 px-3 shadow-sm"
                             />
                         </div>
                         <div>
-                            <label htmlFor="lastname" className="block text-sm font-medium text-gray-700">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Last Name
                             </label>
                             <input
-                                id="lastname"
-                                name="lastname"
                                 type="text"
                                 value={lastName}
                                 onChange={(e) => setLastName(e.target.value)}
-                                className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="human_id" className="block text-sm font-medium text-gray-700">
-                                Human ID
-                            </label>
-                            <input
-                                id="human_id"
-                                name="human_id"
-                                type="text"
-                                value={humanId}
-                                onChange={(e) => setHumanID(e.target.value)}
-                                className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                                Role
-                            </label>
-                            <input
-                                id="role"
-                                name="role"
-                                type="text"
-                                value={role}
-                                onChange={(e) => setRole(e.target.value)}
-                                className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                className="block w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white py-2 px-3 shadow-sm"
                             />
                         </div>
                     </div>
 
+                    {/* Email & Password */}
                     <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                             Email
                         </label>
                         <input
-                            id="email"
-                            name="email"
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="block w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white py-2 px-3 shadow-sm"
                         />
                     </div>
                     <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                             Password
                         </label>
                         <input
-                            id="password"
-                            name="password"
                             type="password"
-                            // value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="block w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white py-2 px-3 shadow-sm"
                         />
                     </div>
 
-                    {/* Photo Upload */}
+                    {/* Profile Photo Upload */}
                     <div>
-                        <label htmlFor="photo-upload" className="block text-sm font-medium text-gray-700">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                             Upload Photo
                         </label>
                         <input
-                            id="photo-upload"
                             type="file"
                             accept="image/*"
-                            onChange={(e) => setPhotoUrl(e.target.files[0])}
-                            className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            onChange={handlePhotoChange}
+                            className="block w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white py-2 px-3 shadow-sm"
                         />
                     </div>
 
-                    <div>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className={`w-full rounded-md ${loading ? "bg-gray-400" : "bg-indigo-600 hover:bg-indigo-500"
-                                } py-2 px-4 text-white shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
-                        >
-                            {loading ? "Updating User..." : "Update User"}
-                        </button>
-                    </div>
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className={`w-full rounded-md py-2 px-4 text-white shadow-sm transition-all duration-200 ease-in-out 
+                            ${loading
+                                ? "bg-gray-400 cursor-not-allowed dark:bg-gray-600"
+                                : "bg-indigo-600 hover:bg-indigo-500 focus:ring-indigo-500 dark:bg-indigo-700 dark:hover:bg-indigo-600"
+                            }`}
+                    >
+                        {loading ? "Updating User..." : "Update User"}
+                    </button>
                 </form>
             )}
         </div>
     );
+
 }

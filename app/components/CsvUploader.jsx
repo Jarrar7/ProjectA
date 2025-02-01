@@ -113,8 +113,9 @@ export default function CsvUploader({ courseId, onStudentsAdded }) {
 
     return (
         <div className="mt-4">
-            <label className="block text-gray-700 font-semibold mb-2">Upload Student List (Excel)</label>
-
+            <label className="block text-gray-700 dark:text-gray-300 font-semibold mb-2">
+                Upload Student List (Excel)
+            </label>
 
             {/* Hidden file input */}
             <input
@@ -132,7 +133,6 @@ export default function CsvUploader({ courseId, onStudentsAdded }) {
                 className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-blue-600 inline-block"
             >
                 Choose File
-
             </label>
 
             {/* Upload Button */}
@@ -147,14 +147,13 @@ export default function CsvUploader({ courseId, onStudentsAdded }) {
 
             {/* Display Selected File Name */}
             {file && (
-                <p className="ml-2 text-gray-700">{file.name}</p>
+                <p className="ml-2 text-gray-700 dark:text-gray-300">{file.name}</p>
             )}
 
-
-            {isUploading && <p className="text-blue-500 mt-2">Uploading...</p>}
-            {errorMessage && <p className="text-red-500 mt-2">{errorMessage}</p>}
-            {successMessage && <p className="text-green-500 mt-2">{successMessage}</p>}
+            {isUploading && <p className="text-blue-500 dark:text-blue-400 mt-2">Uploading...</p>}
+            {errorMessage && <p className="text-red-500 dark:text-red-400 mt-2">{errorMessage}</p>}
+            {successMessage && <p className="text-green-500 dark:text-green-400 mt-2">{successMessage}</p>}
         </div>
-
     );
+
 }
