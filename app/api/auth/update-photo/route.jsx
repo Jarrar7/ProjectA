@@ -43,15 +43,15 @@ export async function POST(request) {
         const faceFormData = new FormData();
         faceFormData.append("image", file, newFilePath);
 
-        const faceResponse = await fetch(`${API_URL}/encode`, {
-            method: "POST",
-            body: faceFormData,
-        });
-
-        // const faceResponse = await fetch("http://127.0.0.1:5001/encode", {
+        // const faceResponse = await fetch(`${API_URL}/encode`, {
         //     method: "POST",
         //     body: faceFormData,
         // });
+
+        const faceResponse = await fetch("http://127.0.0.1:5001/encode", {
+            method: "POST",
+            body: faceFormData,
+        });
 
 
         const faceData = await faceResponse.json();
