@@ -299,7 +299,7 @@ export default function ManageCourses() {
                     semesterFilter={semesterFilter}
                     onSelectCourse={handleSelectCourse}
                     onAddCourse={() => handleOpenModal()}
-                    onEditCourse={handleOpenModal}
+                    //onEditCourse={handleOpenModal}
                     onDeleteCourse={handleDeleteCourse}
                 />
             ) : (

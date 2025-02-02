@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import CsvUploader from "./CsvUploader";
+import { toast } from "react-toastify";
+
 
 export default function CourseDetails({
     selectedCourse,
@@ -12,10 +14,9 @@ export default function CourseDetails({
     onUpdateEnrolledStudents
 }) {
     const [studentId, setStudentId] = useState("");
-    const [errorMessage, setErrorMessage] = useState("");
-    const [successMessage, setSuccessMessage] = useState("");
-    const [errorMessageSession, setErrorMessageSession] = useState("");
-    const [successMessageSession, setSuccessMessageSession] = useState("");
+    const [editedCourseCode, setEditedCourseCode] = useState(selectedCourse.course_code);
+    const [editedYear, setEditedYear] = useState(selectedCourse.year);
+    const [editedSemester, setEditedSemester] = useState(selectedCourse.semester);
     const [sessions, setSessions] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newSession, setNewSession] = useState({
@@ -25,21 +26,42 @@ export default function CourseDetails({
         room: "",
     });
 
+    const handleSaveCourseDetails = async () => {
+        try {
+            const { error } = await supabase
+                .from("courses")
+                .update({
+                    course_code: editedCourseCode,
+                    year: editedYear,
+                    semester: editedSemester
+                })
+                .eq("id", selectedCourse.id);
+
+            if (error) {
+                console.error("Error updating course details:", error.message);
+                toast.error("Failed to update course details.");
+            } else {
+                toast.success("Course details updated successfully!");
+            }
+        } catch (err) {
+            console.error("Error saving course details:", err);
+        }
+    };
+
+
     const handleAddStudent = async () => {
-        setErrorMessage("");
-        setSuccessMessage("");
 
         if (!studentId) {
-            setErrorMessage("Please enter a valid Student ID.");
+            toast.error("Please enter a valid Student ID.");
             return;
         }
 
         try {
             await onAddStudent(studentId, selectedCourse.id); // Pass studentId as is
-            //setSuccessMessage("Student added successfully.");
+            toast.success("Student added successfully.");
             setStudentId("");
         } catch (error) {
-            setErrorMessage(error.message || "Error adding student.");
+            toast.error(error.message || "Error adding student.");
         }
     };
 
@@ -47,7 +69,7 @@ export default function CourseDetails({
         try {
             await onRemoveStudent(studentId, selectedCourse.id);
         } catch (error) {
-            setErrorMessage(error.message || "Error removing student.");
+            toast.error(error.message || "Error removing student.");
         }
     };
 
@@ -73,11 +95,10 @@ export default function CourseDetails({
 
 
     const handleAddSession = async () => {
-        setErrorMessageSession("");
-        setSuccessMessageSession("");
+
 
         if (!newSession.date || !newSession.start_time || !newSession.end_time || !newSession.room) {
-            setErrorMessageSession("Please fill in all the fields.");
+            toast.error("Please fill in all the fields.");
             return;
         }
 
@@ -94,7 +115,7 @@ export default function CourseDetails({
             ]);
 
             if (error) {
-                setErrorMessageSession(error.message || "Error adding session.");
+                toast.error(error.message || "Error adding session.");
             } else {
                 // Re-fetch sessions from the database after insertion
                 const { data: refreshedSessions, error: fetchError } = await supabase
@@ -103,16 +124,16 @@ export default function CourseDetails({
                     .eq("course_id", selectedCourse.id);
 
                 if (fetchError) {
-                    setErrorMessageSession(fetchError.message || "Error fetching updated sessions.");
+                    toast.error(fetchError.message || "Error fetching updated sessions.");
                 } else {
                     setSessions(refreshedSessions); // Update sessions with the latest data
-                    setSuccessMessageSession("Session added successfully.");
+                    toast.success("Session added successfully.");
                     setNewSession({ date: "", start_time: "", end_time: "", room: "" }); // Reset form fields
                     setIsModalOpen(false); // Close the modal
                 }
             }
         } catch (error) {
-            setErrorMessageSession(error.message || "Error adding session.");
+            toast.error(error.message || "Error adding session.");
         }
     };
 
@@ -123,11 +144,12 @@ export default function CourseDetails({
             .eq("id", sessionId);
 
         if (error) {
-            console.error("Error deleting session:", error);
+            toast.error("Error deleting session:", error);
         } else {
             setSessions((prevSessions) =>
                 prevSessions.filter((session) => session.id !== sessionId)
             );
+            toast.success("Session Removed Successfully")
         }
     };
 
@@ -144,12 +166,55 @@ export default function CourseDetails({
             <div className="border-t-4 border-gray-300 dark:border-gray-600 pt-6 mb-5 mt-5"></div>
 
             {/* Course Details */}
-            <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">Course Details</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3">
-                <p className="text-gray-600 dark:text-gray-300 mb-1">Code: {selectedCourse.course_code}</p>
-                <p className="text-gray-600 dark:text-gray-300 mb-1">Year: {selectedCourse.year}</p>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">Semester: {selectedCourse.semester}</p>
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
+                Course Details
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {/* Editable Course Code */}
+                <div>
+                    <label className="text-gray-600 dark:text-gray-300">Course Code:</label>
+                    <input
+                        type="text"
+                        value={editedCourseCode}
+                        onChange={(e) => setEditedCourseCode(e.target.value)}
+                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white py-2 px-3 shadow-sm"
+                    />
+                </div>
+
+                {/* Editable Year */}
+                <div>
+                    <label className="text-gray-600 dark:text-gray-300">Year:</label>
+                    <input
+                        type="number"
+                        value={editedYear}
+                        onChange={(e) => setEditedYear(e.target.value)}
+                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white py-2 px-3 shadow-sm"
+                    />
+                </div>
+
+                {/* Editable Semester */}
+                <div>
+                    <label className="text-gray-600 dark:text-gray-300">Semester:</label>
+                    <select
+                        value={editedSemester}
+                        onChange={(e) => setEditedSemester(e.target.value)}
+                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white py-2 px-3 shadow-sm"
+                    >
+                        <option value="1">Semester 1</option>
+                        <option value="2">Semester 2</option>
+                    </select>
+                </div>
             </div>
+
+            {/* Save Changes Button */}
+            <button
+                onClick={handleSaveCourseDetails}
+                className="mt-4 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-500 dark:bg-blue-700 dark:hover:bg-blue-600"
+            >
+                Save Changes
+            </button>
+
 
             <div className="border-t-4 border-gray-300 dark:border-gray-600 pt-6 mb-5 mt-5"></div>
 
@@ -165,7 +230,7 @@ export default function CourseDetails({
 
             <div className="border-t-4 border-gray-300 dark:border-gray-600 pt-6 mb-5 mt-5"></div>
 
-            {/* 🟢 Add Session Section */}
+            {/* Add Session Section */}
             <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">Manage Sessions</h3>
             <div className="overflow-x-auto">
                 <table className="min-w-full bg-white dark:bg-gray-900 border-collapse shadow-md rounded-lg">

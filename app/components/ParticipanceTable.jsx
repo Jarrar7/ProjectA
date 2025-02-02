@@ -12,7 +12,7 @@ const formatDateWithDay = (dateStr) => {
 };
 
 
-const ParticipanceTable = ({ data, onBack }) => {
+const ParticipanceTable = ({ data, onBack, selectedCourse }) => {
     return (
         <div>
             <button onClick={onBack} className="mb-4 text-blue-500 dark:text-blue-400">
@@ -21,7 +21,7 @@ const ParticipanceTable = ({ data, onBack }) => {
 
             <div>
                 <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">
-                    Participation Records
+                    Participation Records - {selectedCourse.course_name}
                 </h2>
                 <table className="min-w-full bg-white dark:bg-gray-900 shadow-md rounded-lg">
                     <thead className="bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-100">

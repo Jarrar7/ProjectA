@@ -183,8 +183,7 @@ function StudentDashboard() {
                                                 onClick={() => handleCourseClick(course)}
                                                 className="text-gray-800 dark:text-gray-200"
                                             >
-                                                {course.course_name}
-                                            </button>
+                                                {course.course_name} (Year {course.year}, Semester {course.semester})                                            </button>
                                         </div>
                                     ))}
                                 </div>
@@ -195,6 +194,7 @@ function StudentDashboard() {
                             <ParticipanceTable
                                 data={attendanceData}
                                 onBack={handleBackClick}
+                                selectedCourse={selectedCourse}
                             />
                         )}
 

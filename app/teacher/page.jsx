@@ -7,7 +7,7 @@ import SidebarStudentTeacher from "../components/SidebarStudentTeacher";
 import Header from "../components/Header";
 
 import CourseScheduleTable from "../components/CourseScheduleTable";
-import CourseSearch from "../components/CourseSearch";
+import CourseSearch from "../components/CourseSearch"; // Updated to filter by year & semester
 import Messages from "../components/Messages";
 import CalendarComponent from "../components/CalendarComponent";
 import Profile from "../components/Profile";
@@ -18,10 +18,10 @@ function TeacherDashboard() {
     const [activeSection, setActiveSection] = useState("dashboard");
     const { logout, loading, user } = useUser();
     const [items, setItems] = useState([]); // Dynamically fetched courses
+    const [filteredCourses, setFilteredCourses] = useState([]); // State for filtered courses
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [courseSchedule, setCourseSchedule] = useState([]);
     const [courseParticipants, setParticipants] = useState([]);
-    const [filteredCourses, setFilteredCourses] = useState([]); // State for filtered courses
 
     useEffect(() => {
         if (!user || loading) return;
@@ -30,7 +30,7 @@ function TeacherDashboard() {
             try {
                 const { data: courses, error } = await supabase
                     .from("courses")
-                    .select("id, course_name")
+                    .select("id, course_name, year, semester")
                     .eq("teacher_id", user.id);
 
                 if (error) {
@@ -38,7 +38,7 @@ function TeacherDashboard() {
                     setItems([]);
                 } else {
                     setItems(courses || []);
-                    setFilteredCourses(courses || []);
+                    setFilteredCourses(courses || []); // Default to all courses
                 }
             } catch (err) {
                 console.error("Error fetching courses:", err);
@@ -123,7 +123,7 @@ function TeacherDashboard() {
                                 Your Courses
                             </h2>
 
-                            {/* Course search */}
+                            {/* Course Search - Now filters by Year & Semester */}
                             <CourseSearch courses={items} setFilteredCourses={setFilteredCourses} />
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -136,7 +136,7 @@ function TeacherDashboard() {
                                             onClick={() => handleCourseClick(course)}
                                             className="text-gray-800 dark:text-gray-200"
                                         >
-                                            {course.course_name}
+                                            {course.course_name} (Year {course.year}, Semester {course.semester})
                                         </button>
                                     </div>
                                 ))}
@@ -166,7 +166,6 @@ function TeacherDashboard() {
             </div>
         </div>
     );
-
 }
 
 export default withRoleProtection(TeacherDashboard, ["teacher"]);

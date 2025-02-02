@@ -3,6 +3,7 @@ import { useState } from "react";
 import FileUploadComponent from "./FileUploadComponent";
 import EditAttendanceModal from "./EditAttendanceModal";
 import { supabase } from "../../lib/supabaseClient";
+import { toast } from "react-toastify";
 
 const CourseScheduleTable = ({ schedule, participants, onBack, selectedCourse }) => {
     const [activeTab, setActiveTab] = useState("schedule");
@@ -69,10 +70,11 @@ const CourseScheduleTable = ({ schedule, participants, onBack, selectedCourse })
             }
 
             console.log("Attendance updated successfully.");
-            alert("Images uploaded and attendance updated successfully!");
+            toast.success("Images uploaded and attendance updated successfully!");
+
         } catch (error) {
             console.error("Error during upload and attendance update:", error.message);
-            alert(error.message || "An error occurred while processing the uploaded files.");
+            toast.error(error.message || "An error occurred while processing the uploaded files.");
         } finally {
             setUploading(false);
             closeFileUploadModal(); // Close the modal
@@ -115,7 +117,7 @@ const CourseScheduleTable = ({ schedule, participants, onBack, selectedCourse })
             {/* Course Schedule Table */}
             {!showEditAttendanceModal && !showFileUploadModal && activeTab === "schedule" && (
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">Course Schedule</h2>
+                    <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">Course Schedule - {selectedCourse.course_name}</h2>
                     <table className="min-w-full bg-white dark:bg-gray-900 shadow-md rounded-lg">
                         <thead className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100">
                             <tr>
@@ -157,7 +159,7 @@ const CourseScheduleTable = ({ schedule, participants, onBack, selectedCourse })
             {/* Course Participants Table */}
             {!showEditAttendanceModal && !showFileUploadModal && activeTab === "participants" && (
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">Course Participants</h2>
+                    <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">Course Participants - {selectedCourse.course_name}</h2>
                     <table className="min-w-full bg-white dark:bg-gray-900 shadow-md rounded-lg">
                         <thead className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100">
                             <tr>

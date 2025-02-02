@@ -2,32 +2,55 @@
 import React, { useState } from "react";
 
 const CourseSearch = ({ courses, setFilteredCourses }) => {
-    const [searchQuery, setSearchQuery] = useState(""); // State for search query
+    const [selectedYear, setSelectedYear] = useState("");
+    const [selectedSemester, setSelectedSemester] = useState("");
 
-    const handleSearchChange = (e) => {
-        const query = e.target.value;
-        setSearchQuery(query); // Update the search query
+    const handleFilterChange = (year, semester) => {
+        setSelectedYear(year);
+        setSelectedSemester(semester);
 
-        // Filter courses based on the search query
-        const filteredCourses = courses.filter((course) =>
-            course.course_name.toLowerCase().includes(query.toLowerCase())
-        );
+        // Filter courses based on selected year and semester
+        const filteredCourses = courses.filter((course) => {
+            return (
+                (year === "" || course.year.toString() === year) &&
+                (semester === "" || course.semester.toString() === semester)
+            );
+        });
 
-        setFilteredCourses(filteredCourses); // Update the filtered courses state
+        setFilteredCourses(filteredCourses);
     };
 
     return (
-        <div className="mb-4">
-            <input
-                type="text"
+        <div className="mb-4 flex gap-4">
+            {/* Year Filter */}
+            <select
                 className="p-2 border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-800 dark:text-gray-200"
-                placeholder="Search courses by name..."
-                value={searchQuery}
-                onChange={handleSearchChange} // Trigger search on input change
-            />
+                value={selectedYear}
+                onChange={(e) => handleFilterChange(e.target.value, selectedSemester)}
+            >
+                <option value="">All Years</option>
+                {[...new Set(courses.map((course) => course.year))].map((year) => (
+                    <option key={year} value={year}>
+                        {year}
+                    </option>
+                ))}
+            </select>
+
+            {/* Semester Filter */}
+            <select
+                className="p-2 border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-800 dark:text-gray-200"
+                value={selectedSemester}
+                onChange={(e) => handleFilterChange(selectedYear, e.target.value)}
+            >
+                <option value="">All Semesters</option>
+                {[...new Set(courses.map((course) => course.semester))].map((semester) => (
+                    <option key={semester} value={semester}>
+                        {semester}
+                    </option>
+                ))}
+            </select>
         </div>
     );
-
 };
 
 export default CourseSearch;
