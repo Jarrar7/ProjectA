@@ -88,122 +88,133 @@ export default function AddIndividualUser() {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-6">
+        <div className="max-w-3xl mx-auto p-8 bg-white dark:bg-gray-800 shadow-lg rounded-lg">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
                 Sign Up Individual User
             </h2>
-            <div className="grid grid-cols-2 gap-6">
-                <div>
-                    <label htmlFor="firstname" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        First Name
-                    </label>
-                    <input
-                        id="firstname"
-                        name="firstname"
-                        type="text"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        required
-                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 py-2 px-3 shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    />
-                </div>
-                <div>
-                    <label htmlFor="lastname" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Last Name
-                    </label>
-                    <input
-                        id="lastname"
-                        name="lastname"
-                        type="text"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        required
-                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 py-2 px-3 shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    />
-                </div>
-                <div>
-                    <label htmlFor="human_id" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Human ID
-                    </label>
-                    <input
-                        id="human_id"
-                        name="human_id"
-                        type="text"
-                        value={human_id}
-                        onChange={(e) => setHumanID(e.target.value)}
-                        required
-                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 py-2 px-3 shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    />
-                </div>
-                <div>
-                    <label htmlFor="role" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Role
-                    </label>
-                    <input
-                        id="role"
-                        name="role"
-                        type="text"
-                        value={role}
-                        onChange={(e) => setRole(e.target.value)}
-                        required
-                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 py-2 px-3 shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    />
-                </div>
-            </div>
-            <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Email
-                </label>
-                <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 py-2 px-3 shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-            </div>
-            <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Password
-                </label>
-                <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 py-2 px-3 shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-            </div>
 
-            {/* Photo Upload */}
-            <div>
-                <label htmlFor="photo-upload" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Upload Photo
-                </label>
-                <input
-                    id="photo-upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setPhotoFile(e.target.files[0])}
-                    className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 py-2 px-3 shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-            </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Grid Layout for Form Fields */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* First Name */}
+                    <div>
+                        <label htmlFor="firstname" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            First Name
+                        </label>
+                        <input
+                            id="firstname"
+                            type="text"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            required
+                            className="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 py-2 px-3 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                        />
+                    </div>
 
-            <div>
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className={`w-full rounded-md ${loading ? "bg-gray-400" : "bg-indigo-600 hover:bg-indigo-500"} 
-                        dark:bg-indigo-700 dark:hover:bg-indigo-600 py-2 px-4 text-white shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
-                >
-                    {loading ? "Creating User..." : "Create User"}
-                </button>
-            </div>
-        </form>
+                    {/* Last Name */}
+                    <div>
+                        <label htmlFor="lastname" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Last Name
+                        </label>
+                        <input
+                            id="lastname"
+                            type="text"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            required
+                            className="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 py-2 px-3 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                        />
+                    </div>
+
+                    {/* ID */}
+                    <div>
+                        <label htmlFor="human_id" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            User ID
+                        </label>
+                        <input
+                            id="human_id"
+                            type="text"
+                            value={human_id}
+                            onChange={(e) => setHumanID(e.target.value)}
+                            required
+                            className="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 py-2 px-3 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                        />
+                    </div>
+
+                    {/* Role */}
+                    <div>
+                        <label htmlFor="role" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Role
+                        </label>
+                        <input
+                            id="role"
+                            type="text"
+                            value={role}
+                            onChange={(e) => setRole(e.target.value)}
+                            required
+                            className="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 py-2 px-3 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                        />
+                    </div>
+                </div>
+
+                {/* Email */}
+                <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Email Address
+                    </label>
+                    <input
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 py-2 px-3 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                    />
+                </div>
+
+                {/* Password */}
+                <div>
+                    <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Password
+                    </label>
+                    <input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 py-2 px-3 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                    />
+                </div>
+
+                {/* Photo Upload */}
+                <div>
+                    <label htmlFor="photo-upload" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Upload Profile Photo
+                    </label>
+                    <input
+                        id="photo-upload"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setPhotoFile(e.target.files[0])}
+                        className="mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 py-2 px-3 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                    />
+                </div>
+
+                {/* Submit Button */}
+                <div className="mt-6">
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className={`w-full rounded-lg py-2 px-4 text-white font-semibold shadow-md focus:ring-2 focus:ring-indigo-500 transition-all duration-200 
+                  ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-500 dark:bg-indigo-700 dark:hover:bg-indigo-600"}`}
+                    >
+                        {loading ? "Creating User..." : "Create Account"}
+                    </button>
+                </div>
+            </form>
+        </div>
     );
+
 
 }

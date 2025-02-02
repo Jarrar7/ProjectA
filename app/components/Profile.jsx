@@ -146,6 +146,17 @@ export default function Profile() {
                 className="block w-full rounded-lg border-gray-300 dark:border-gray-600 py-3 px-4 text-gray-900 dark:text-gray-200 shadow-sm bg-gray-50 dark:bg-gray-800"
               />
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-900 dark:text-gray-300">
+                ID
+              </label>
+              <input
+                type="ID"
+                value={user.human_id}
+                disabled
+                className="block w-full rounded-lg border-gray-300 dark:border-gray-600 py-3 px-4 text-gray-900 dark:text-gray-200 shadow-sm bg-gray-50 dark:bg-gray-800"
+              />
+            </div>
           </div>
 
           <button

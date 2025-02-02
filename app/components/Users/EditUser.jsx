@@ -16,10 +16,9 @@ export default function EditUser() {
     const [selectedFile, setSelectedFile] = useState(null);
     const [loading, setLoading] = useState(false);
 
-
     const handleSearch = async () => {
         if (!searchHumanId.trim()) {
-            toast.error("Please enter a valid Human ID.");
+            toast.error("Please enter a valid ID.");
             return;
         }
 
@@ -66,7 +65,7 @@ export default function EditUser() {
             if (humanId) updatedData.human_id = humanId;
             if (role) updatedData.role = role;
 
-            //Update profile fields (Only send changed fields)
+            // Update profile fields
             if (Object.keys(updatedData).length > 0) {
                 const { error: profileError } = await supabase
                     .from("profiles")
@@ -76,7 +75,7 @@ export default function EditUser() {
                 if (profileError) throw profileError;
             }
 
-            //Update Email & Password in Supabase Auth
+            // Update Email & Password in Supabase Auth
             if (email || password) {
                 const authData = {};
                 if (email) authData.email = email;
@@ -89,7 +88,7 @@ export default function EditUser() {
             // If a new photo is selected, call `update-photo` API
             if (selectedFile) {
                 const formData = new FormData();
-                formData.append("file", selectedFile); // Correct field name
+                formData.append("file", selectedFile);
                 formData.append("userId", userId);
                 formData.append("humanId", humanId);
 
@@ -115,10 +114,6 @@ export default function EditUser() {
         }
     };
 
-
-
-
-
     return (
         <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-6">
@@ -129,7 +124,7 @@ export default function EditUser() {
             <div className="flex gap-4">
                 <input
                     type="text"
-                    placeholder="Enter Human ID"
+                    placeholder="Enter User ID"
                     value={searchHumanId}
                     onChange={(e) => setSearchHumanId(e.target.value)}
                     className="block w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -170,6 +165,31 @@ export default function EditUser() {
                                 onChange={(e) => setLastName(e.target.value)}
                                 className="block w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white py-2 px-3 shadow-sm"
                             />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Human ID
+                            </label>
+                            <input
+                                type="text"
+                                value={humanId}
+                                onChange={(e) => setHumanID(e.target.value)}
+                                className="block w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white py-2 px-3 shadow-sm"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Role
+                            </label>
+                            <select
+                                value={role}
+                                onChange={(e) => setRole(e.target.value)}
+                                className="block w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white py-2 px-3 shadow-sm"
+                            >
+                                <option value="student">Student</option>
+                                <option value="teacher">Teacher</option>
+                                <option value="admin">Admin</option>
+                            </select>
                         </div>
                     </div>
 

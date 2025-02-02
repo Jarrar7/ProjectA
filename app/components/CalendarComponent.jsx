@@ -134,7 +134,7 @@ export default function CalendarComponent({ events, selectedDate, onDateChange }
     const filteredLectures = lectures.filter(lecture => formatDate(lecture.date) === formatDate(date));
 
     return (
-        <div className="flex justify-center p-4 bg-gray-100 dark:bg-gray-800 min-h-screen">
+        <div className="flex justify-center p-4 bg-gray-100 dark:bg-gray-800">
             <div className="bg-white dark:bg-gray-900 dark:text-gray-200 rounded-xl shadow-lg p-6 max-w-lg w-full">
                 <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 text-center mb-4">
                     Select a Date

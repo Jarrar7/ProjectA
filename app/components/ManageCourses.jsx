@@ -279,12 +279,17 @@ export default function ManageCourses() {
     return (
         <div className="p-6 dark:bg-gray-800 min-h-screen">
             <h1 className="text-3xl font-bold mb-6">Manage Courses</h1>
-            <YearSemesterFilter
-                selectedYear={yearFilter}
-                setSelectedYear={setYearFilter}
-                selectedSemester={semesterFilter}
-                setSelectedSemester={setSemesterFilter}
-            />
+
+            {/* Hide the Year & Semester Filter when a course is selected */}
+            {!selectedCourse && (
+                <YearSemesterFilter
+                    selectedYear={yearFilter}
+                    setSelectedYear={setYearFilter}
+                    selectedSemester={semesterFilter}
+                    setSelectedSemester={setSemesterFilter}
+                />
+            )}
+
             {!selectedCourse ? (
                 <CourseList
                     courses={courses}
@@ -308,6 +313,7 @@ export default function ManageCourses() {
                     onUpdateEnrolledStudents={setEnrolledStudents}
                 />
             )}
+
             {isModalOpen && (
                 <CourseModal
                     formData={formData}
@@ -319,5 +325,6 @@ export default function ManageCourses() {
             )}
         </div>
     );
+
 
 }

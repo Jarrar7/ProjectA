@@ -132,19 +132,20 @@ export default function CourseDetails({
     };
 
     return (
-        <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-lg">
+        <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-lg transition-all">
             <button onClick={onBack} className="text-blue-600 dark:text-blue-400 font-semibold mb-6 hover:underline">
                 Back to Courses
             </button>
 
-            <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+            <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
                 {selectedCourse.course_name}
             </h2>
 
             <div className="border-t-4 border-gray-300 dark:border-gray-600 pt-6 mb-5 mt-5"></div>
 
-            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Course Details</h3>
-            <div className="grid grid-cols-1 justify-between sm:grid-cols-3">
+            {/* Course Details */}
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">Course Details</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3">
                 <p className="text-gray-600 dark:text-gray-300 mb-1">Code: {selectedCourse.course_code}</p>
                 <p className="text-gray-600 dark:text-gray-300 mb-1">Year: {selectedCourse.year}</p>
                 <p className="text-gray-600 dark:text-gray-300 mb-4">Semester: {selectedCourse.semester}</p>
@@ -152,22 +153,23 @@ export default function CourseDetails({
 
             <div className="border-t-4 border-gray-300 dark:border-gray-600 pt-6 mb-5 mt-5"></div>
 
-            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Teacher(s)</h3>
-
+            {/* Teacher Details */}
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">Teacher(s)</h3>
             {teacher ? (
                 <p className="text-gray-700 dark:text-gray-300 mb-4">
                     {teacher.firstName} {teacher.lastName} ({teacher.human_id})
                 </p>
             ) : (
-                <p className="text-red-500 mb-4">No teacher assigned.</p>
+                <p className="text-red-500 dark:text-red-400 mb-4">No teacher assigned.</p>
             )}
 
             <div className="border-t-4 border-gray-300 dark:border-gray-600 pt-6 mb-5 mt-5"></div>
 
-            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Manage Sessions</h3>
+            {/* 🟢 Add Session Section */}
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">Manage Sessions</h3>
             <div className="overflow-x-auto">
                 <table className="min-w-full bg-white dark:bg-gray-900 border-collapse shadow-md rounded-lg">
-                    <thead className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100">
+                    <thead className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white">
                         <tr>
                             <th className="py-3 px-4 border-b text-left">Date</th>
                             <th className="py-3 px-4 border-b text-left">Hours of Lecture</th>
@@ -187,7 +189,7 @@ export default function CourseDetails({
                                         <td className="py-3 px-4 border-b">
                                             <button
                                                 onClick={() => handleDelete(session.id)}
-                                                className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                                                className="bg-red-500 dark:bg-red-600 text-white px-3 py-1 rounded hover:bg-red-600 dark:hover:bg-red-700"
                                             >
                                                 Delete
                                             </button>
@@ -207,60 +209,54 @@ export default function CourseDetails({
                 <div className="flex justify-end">
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mt-4"
+                        className="bg-green-500 dark:bg-green-600 text-white px-4 py-2 rounded hover:bg-green-600 dark:hover:bg-green-700 mt-4"
                     >
                         Add Session
                     </button>
                 </div>
 
-                {errorMessageSession && <p className="text-red-500 mt-2">{errorMessageSession}</p>}
-                {successMessageSession && <p className="text-green-500 mt-2">{successMessageSession}</p>}
-
-                {/* Modal */}
+                {/* Add Session Modal */}
                 {isModalOpen && (
                     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
                         <div className="bg-white dark:bg-gray-900 p-6 rounded shadow-lg w-96">
-                            <h3 className="text-lg font-semibold dark:text-gray-100 mb-4">Add New Session</h3>
+                            <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Add New Session</h3>
                             <div className="space-y-4">
                                 <input
                                     type="date"
                                     value={newSession.date}
                                     onChange={(e) => setNewSession({ ...newSession, date: e.target.value })}
-                                    className="border p-2 rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
-                                    placeholder="Date"
+                                    className="border dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 rounded w-full"
                                 />
                                 <input
                                     type="time"
                                     value={newSession.start_time}
                                     onChange={(e) => setNewSession({ ...newSession, start_time: e.target.value })}
-                                    className="border p-2 rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
-                                    placeholder="Start Time"
+                                    className="border dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 rounded w-full"
                                 />
                                 <input
                                     type="time"
                                     value={newSession.end_time}
                                     onChange={(e) => setNewSession({ ...newSession, end_time: e.target.value })}
-                                    className="border p-2 rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
-                                    placeholder="End Time"
+                                    className="border dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 rounded w-full"
                                 />
                                 <input
                                     type="text"
+                                    placeholder="Room"
                                     value={newSession.room}
                                     onChange={(e) => setNewSession({ ...newSession, room: e.target.value })}
-                                    className="border p-2 rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
-                                    placeholder="Room"
+                                    className="border dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 rounded w-full"
                                 />
                             </div>
                             <div className="flex justify-end space-x-4 mt-4">
                                 <button
                                     onClick={() => setIsModalOpen(false)}
-                                    className="bg-gray-300 dark:bg-gray-600 px-4 py-2 rounded hover:bg-gray-400"
+                                    className="bg-gray-300 dark:bg-gray-600 px-4 py-2 rounded hover:bg-gray-400 dark:hover:bg-gray-700"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handleAddSession}
-                                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                                    className="bg-green-500 dark:bg-green-600 text-white px-4 py-2 rounded hover:bg-green-600 dark:hover:bg-green-700"
                                 >
                                     Add Session
                                 </button>
@@ -272,7 +268,39 @@ export default function CourseDetails({
 
             <div className="border-t-4 border-gray-300 dark:border-gray-600 pt-6 mb-5 mt-5"></div>
 
-            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Enrolled Students</h3>
+            {/* Bulk Add Students */}
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">Bulk Add Students</h3>
+            <CsvUploader
+                courseId={selectedCourse.id}
+                onStudentsAdded={(newStudents) => {
+                    onUpdateEnrolledStudents([...enrolledStudents, ...newStudents]);
+                }}
+            />
+
+            <div className="border-t-4 border-gray-300 dark:border-gray-600 pt-6 mb-5 mt-5"></div>
+
+            {/* Add Student */}
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-white mt-6 mb-2">Add Student</h3>
+            <div className="flex items-center gap-4 mt-2">
+                <input
+                    type="text"
+                    value={studentId}
+                    onChange={(e) => setStudentId(e.target.value)}
+                    placeholder="Enter Student ID"
+                    className="border dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 rounded w-full focus:ring-blue-500"
+                />
+                <button
+                    onClick={handleAddStudent}
+                    className="bg-green-500 dark:bg-green-600 text-white px-4 py-2 rounded hover:bg-green-600 dark:hover:bg-green-700"
+                >
+                    Add Student
+                </button>
+            </div>
+
+            <div className="border-t-4 border-gray-300 dark:border-gray-600 pt-6 mb-5 mt-5"></div>
+
+            {/* Enrolled Students */}
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-white mt-6 mb-2">Enrolled Students</h3>
             {enrolledStudents.length > 0 ? (
                 <ul className="space-y-2 mt-2">
                     {enrolledStudents.map((student, index) =>
@@ -281,27 +309,26 @@ export default function CourseDetails({
                                 key={index}
                                 className="flex justify-between items-center border p-2 rounded bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
                             >
-                                <span className="text-gray-700 dark:text-gray-200">
+                                <span className="text-gray-700 dark:text-white">
                                     {student.firstName} {student.lastName} ({student.human_id})
                                 </span>
                                 <button
                                     onClick={() => handleRemoveStudent(student.student_id, selectedCourse.id)}
-                                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                                    className="bg-red-500 dark:bg-red-600 text-white px-3 py-1 rounded hover:bg-red-600 dark:hover:bg-red-700"
                                 >
                                     Remove
                                 </button>
                             </li>
                         ) : (
-                            <li key={index} className="text-red-500">Student data unavailable</li>
+                            <li key={index} className="text-red-500 dark:text-red-400">Student data unavailable</li>
                         )
                     )}
                 </ul>
             ) : (
-                <p className="text-red-500 mt-2">No students enrolled.</p>
+                <p className="text-red-500 dark:text-red-400 mt-2">No students enrolled.</p>
             )}
         </div>
     );
 
 }
-
 

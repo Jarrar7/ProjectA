@@ -60,7 +60,7 @@ const ParticipanceTable = ({ data, onBack }) => {
                                         <td className="py-2 px-4 border-b text-center text-gray-800 dark:text-gray-200">
                                             {entry.total_hours}
                                         </td>
-                                        <td className="py-2 px-4 border-b text-center">{entry.total_hours}</td>
+
                                     </tr>
                                 );
                             })
